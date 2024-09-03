@@ -1,0 +1,196 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+</head
+<body>
+
+	<div class="frame">
+		<img id="album-cover" />
+		<div id="metadata">
+			<p id="title">-</p>
+			<p id="artist">-</p>
+		</div>
+		<div>
+			<input
+				type="file"
+				accept=".mp3,.m4a"
+				onchange="setAudio(event)"
+				multiple
+			/>
+		</div>
+		<audio
+			id="audioPlayer">
+		</audio>
+		<div>
+			<input
+				id="seekBar"
+				type="range"
+				onInput="seek(event)"
+				disabled
+			/>
+		</div>
+		<div>
+			<button onclick="prev()">
+				prev
+			</button>
+			<button onclick="playback()">
+				play/pause
+			</button>
+			<button onclick="next()">
+				next
+			</button>
+		</div>
+	</div>
+	
+	
+	<script>
+		const jsmediatags = window.jsmediatags;
+		
+		let currentSong;
+		let songs = [];
+		
+		const audioPlayer = document.getElementById("audioPlayer");
+		const seekBar = document.getElementById("seekBar");
+		
+		const title = document.getElementById("title");
+		const artist = document.getElementById("artist");
+		const albumCover = document.getElementById("album-cover");
+	
+		function setAudio(event) {
+			songs = event.target.files;
+			currentSong = 0;
+			setSong(songs[0]);
+			seekBar.disabled = false;
+		}
+		
+		function setSong(file) {
+			audioPlayer.src = URL.createObjectURL(file);
+			audioPlayer.play();
+			jsmediatags.read(file, {
+				onSuccess: setMetadata
+			});
+		}
+		
+		// controls
+		
+		function resume() {
+			audioPlayer.play();
+		}
+		
+		function pause() {
+			audioPlayer.pause();
+		}
+		
+		function playback() {
+			if (audioPlayer.paused) {
+				resume();
+			} else {
+				pause();
+			}
+		}
+		
+		function prev() {
+			if (audioPlayer.currentTime > 3) {
+				audioPlayer.currentTime = 0;
+				return;
+			}
+			updateSongIndex(-1);
+			setSong(songs[currentSong]);
+		}
+		
+		function next() {
+			updateSongIndex(1);
+			setSong(songs[currentSong]);
+		}
+		
+		function updateSongIndex(adv) {
+			currentSong += adv;
+			currentSong %= songs.length;
+			if (currentSong < 0) {
+				currentSong = songs.length + currentSong;
+			}
+		}
+		
+		function seek(event) {
+			const pos = event.target.value / 100 * audioPlayer.duration;
+			audioPlayer.fastSeek(pos);
+		}
+		
+		// events
+		
+		setInterval(() => {
+			const pos = audioPlayer.currentTime / audioPlayer.duration * 100;
+			seekBar.value = pos;
+		}, 500);
+		
+		audioPlayer.addEventListener("ended", () => {
+			next();
+		});
+		
+		// metadata
+		
+		function setMetadata(tag) {
+			const tags = tag.tags;
+			title.textContent = tags.title ? tags.title : "-";
+			artist.textContent = tags.artist ? tags.artist : "-";
+			albumCover.src = decodeImg(tags.picture);
+			if ('mediaSession' in navigator) {
+				navigator.mediaSession.metadata = new MediaMetadata({
+					title: tags.title,
+					artist: tags.artist
+				});
+			}
+		}
+		
+		function decodeImg(imgData) {
+			if (!imgData) {
+				return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+			}
+			const { data, format } = imgData;
+			let base64String = "";
+			for (const i of data) {
+				base64String += String.fromCharCode(i);
+			}
+			return `data:${format};base64,${window.btoa(base64String)}`;
+		}
+	</script>
+	
+	<style>
+		* {
+			user-select: none;
+			-webkit-user-select: none;
+		}
+		body {
+			overflow: hidden;
+			/*background-color: #212529;*/
+		}
+		.frame {
+			display: flex;
+			flex-direction: column;
+			flex-wrap: wrap;
+			justify-content: end;
+			align-items: center;
+			height: 90%;
+		}
+		.frame > * {
+			margin-block: 2vh;
+		}
+		#metadata > * {
+			text-align: center;
+			margin: 0;
+			font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+		}
+		#album-cover {
+			height: min(75vw, 75vh);
+			width: min(75vw, 75vh);
+			box-shadow: 0.3em 0.3em 1em gray;
+			border-radius: 10px;
+		}
+		#seekbar {
+			width: 75vw;
+		}
+	</style>
+
+</body>
+</html>
