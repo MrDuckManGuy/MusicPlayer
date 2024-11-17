@@ -33,14 +33,14 @@
 				disabled
 			/>
 		</div>
-		<div>
-			<button onclick="prev()">
+		<div id="controls">
+			<button onclick="prev()" disabled>
 				prev
 			</button>
-			<button onclick="playback()">
+			<button onclick="playback()" disabled>
 				play/pause
 			</button>
-			<button onclick="next()">
+			<button onclick="next()" disabled>
 				next
 			</button>
 		</div>
@@ -55,6 +55,7 @@
 		
 		const audioPlayer = document.getElementById("audioPlayer");
 		const seekBar = document.getElementById("seekBar");
+		const controls = document.getElementById("controls");
 		
 		const title = document.getElementById("title");
 		const artist = document.getElementById("artist");
@@ -65,6 +66,7 @@
 			currentSong = 0;
 			setSong(songs[0]);
 			seekBar.disabled = false;
+			for (let btn of controls.children) btn.disabled = false;
 		}
 		
 		function setSong(file) {
@@ -194,7 +196,7 @@
 			box-shadow: 0.3em 0.3em 1em gray;
 			border-radius: 10px;
 		}
-		#seekbar {
+		#seekBar {
 			width: 75vw;
 		}
 	</style>
