@@ -10,39 +10,39 @@
 
 	<div class="frame">
 		<img id="album-cover" />
-		<div id="metadata">
-			<p id="title">-</p>
-			<p id="artist">-</p>
-		</div>
-		<div>
-			<input
-				type="file"
-				accept=".mp3,.m4a"
-				onchange="setAudio(event)"
-				multiple
-			/>
-		</div>
-		<audio
-			id="audioPlayer">
-		</audio>
-		<div>
+		<div id="control-panel">
+			<div id="metadata">
+				<p id="title">-</p>
+				<p id="artist">-</p>
+			</div>
+			<div>
+				<input
+					type="file"
+					accept=".mp3,.m4a"
+					onchange="setAudio(event)"
+					multiple
+				/>
+			</div>
+			<audio
+				id="audioPlayer">
+			</audio>
 			<input
 				id="seekBar"
 				type="range"
 				onInput="seek(event)"
 				disabled
 			/>
-		</div>
-		<div id="controls">
-			<button onclick="prev()" disabled>
-				prev
-			</button>
-			<button onclick="playback()" disabled>
-				play/pause
-			</button>
-			<button onclick="next()" disabled>
-				next
-			</button>
+			<div id="controls">
+				<button onclick="prev()" disabled>
+					prev
+				</button>
+				<button onclick="playback()" disabled>
+					play/pause
+				</button>
+				<button onclick="next()" disabled>
+					next
+				</button>
+			</div>
 		</div>
 	</div>
 	
@@ -178,13 +178,17 @@
 		.frame {
 			display: flex;
 			flex-direction: column;
-			flex-wrap: wrap;
 			justify-content: end;
 			align-items: center;
 			height: 90%;
 		}
-		.frame > * {
+		.frame > *, #control-panel > * {
 			margin-block: 2vh;
+		}
+		#control-panel {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 		}
 		#metadata > * {
 			text-align: center;
@@ -192,13 +196,38 @@
 			font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
 		}
 		#album-cover {
-			height: min(75vw, 75vh);
-			width: min(75vw, 75vh);
+			height: auto;
+			width: 75vw;
+			aspect-ratio: 1;
+			max-width: 45vh;
 			box-shadow: 0.3em 0.3em 1em gray;
 			border-radius: 10px;
 		}
 		#seekBar {
 			width: 75vw;
+		}
+		#controls {
+			display: flex;
+			justify-content: center;
+			gap: 5px;
+		}
+		@media (orientation: landscape) {
+			.frame {
+				flex-direction: row;
+				justify-content: space-evenly;
+			}
+			#album-cover {
+				height: 90%;
+				width: auto;
+				max-height: 45vw;
+				max-width: none;
+			}
+			#control-panel {
+				width: 45%;
+			}
+			#control-panel > * {
+				width: 100%;
+			}
 		}
 	</style>
 
