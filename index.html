@@ -145,6 +145,11 @@
 					title: tags.title,
 					artist: tags.artist
 				});
+				
+				navigator.mediaSession.setActionHandler("play", () => play());
+				navigator.mediaSession.setActionHandler("pause", () => pause());
+				navigator.mediaSession.setActionHandler("previoustrack", () => prev());
+				navigator.mediaSession.setActionHandler("nexttrack", () => next());
 			}
 		}
 		
