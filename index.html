@@ -146,7 +146,7 @@
 					artist: tags.artist
 				});
 				
-				navigator.mediaSession.setActionHandler("play", () => play());
+				navigator.mediaSession.setActionHandler("play", () => resume());
 				navigator.mediaSession.setActionHandler("pause", () => pause());
 				navigator.mediaSession.setActionHandler("previoustrack", () => prev());
 				navigator.mediaSession.setActionHandler("nexttrack", () => next());
