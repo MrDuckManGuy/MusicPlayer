@@ -34,13 +34,13 @@
 			/>
 			<div id="controls">
 				<button onclick="prev()" disabled>
-					prev
+					<img src="media/skipPrev.png">
 				</button>
 				<button onclick="playback()" disabled>
-					play/pause
+					<img src="media/playPause.png">
 				</button>
 				<button onclick="next()" disabled>
-					next
+					<img src="media/skipNext.png">
 				</button>
 			</div>
 		</div>
@@ -162,18 +162,23 @@
 	</script>
 	
 	<style>
+		:root {
+			--main-background-color: #222
+		}
 		* {
 			user-select: none;
 			-webkit-user-select: none;
+			color: white;
 		}
 		html {
 			margin: 0;
 			overscroll-behavior: none;
 		}
 		body {
+			margin: 0;
 			overflow: hidden;
 			height: 100vh;
-			/*background-color: #212529;*/
+			background-color: var(--main-background-color);
 		}
 		.frame {
 			display: flex;
@@ -200,7 +205,7 @@
 			width: 75vw;
 			aspect-ratio: 1;
 			max-width: 45vh;
-			box-shadow: 0.3em 0.3em 1em gray;
+			box-shadow: 0.3em 0.3em 1em #080808;
 			border-radius: 10px;
 		}
 		#seekBar {
@@ -208,8 +213,18 @@
 		}
 		#controls {
 			display: flex;
-			justify-content: center;
-			gap: 5px;
+			justify-content: space-around;
+			width: 100%;
+			/* gap: 5px; */
+		}
+		#controls > button {
+			padding: 0;
+			border: 0;
+			height: 5em;
+		}
+		#controls > button > img {
+			height: 100%;
+			background-color: var(--main-background-color);
 		}
 		@media (orientation: landscape) {
 			.frame {
