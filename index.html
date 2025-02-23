@@ -7,7 +7,7 @@
 	<link rel='stylesheet' type='text/css' media='screen' href='style.css'>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 </head>
-<body>
+<body ontouchstart="">
 
 	<div class="frame">
 		<img id="album-cover" />
@@ -34,14 +34,14 @@
 				disabled
 			/>
 			<div id="controls">
-				<button onclick="prev()" disabled>
-					<img id="prev-icon" src="media/skipPrev.png">
+				<button class="control-btn" onclick="prev()" disabled>
+					<img id="prev-icon" class="control-icon" src="media/skipPrev.png">
 				</button>
-				<button onclick="playback()" disabled>
-					<img id="playback-icon" src="media/play.png">
+				<button class="control-btn" onclick="playback()" disabled>
+					<img id="playback-icon" class="control-icon" src="media/play.png">
 				</button>
-				<button onclick="next()" disabled>
-					<img id="next-icon" src="media/skipNext.png">
+				<button class="control-btn" onclick="next()" disabled>
+					<img id="next-icon" class="control-icon" src="media/skipNext.png">
 				</button>
 			</div>
 		</div>

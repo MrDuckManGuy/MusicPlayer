@@ -54,12 +54,16 @@ body {
 	width: 100%;
 	/* gap: 5px; */
 }
-#controls > button {
+.control-btn {
 	padding: 0;
 	border: 0;
 	height: 5em;
+	transition: transform 0.1s ease-in-out;
 }
-#controls > button > img {
+.control-btn:active {
+	transform: scale(0.75);
+}
+.control-icon {
 	height: 100%;
 	background-color: var(--main-background-color);
 }
