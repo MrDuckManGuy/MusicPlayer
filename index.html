@@ -143,8 +143,14 @@
 			if ('mediaSession' in navigator) {
 				navigator.mediaSession.metadata = new MediaMetadata({
 					title: tags.title,
-					artist: tags.artist
+					artist: tags.artist,
+					artwork: [{ src: albumCover.src }]
 				});
+				
+				navigator.mediaSession.setActionHandler("play", () => resume());
+				navigator.mediaSession.setActionHandler("pause", () => pause());
+				navigator.mediaSession.setActionHandler("previoustrack", () => prev());
+				navigator.mediaSession.setActionHandler("nexttrack", () => next());
 			}
 		}
 		
