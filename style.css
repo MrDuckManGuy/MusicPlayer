@@ -1,0 +1,83 @@
+:root {
+	--main-background-color: #222
+}
+* {
+	user-select: none;
+	-webkit-user-select: none;
+	color: white;
+}
+html {
+	margin: 0;
+	overscroll-behavior: none;
+}
+body {
+	margin: 0;
+	overflow: hidden;
+	height: 100vh;
+	background-color: var(--main-background-color);
+}
+.frame {
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
+	align-items: center;
+	height: 90%;
+}
+.frame > *, #control-panel > * {
+	margin: 2vh 0;
+}
+#control-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 75vw;
+}
+#metadata > * {
+	text-align: center;
+	margin: 0;
+	font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+}
+#album-cover {
+	height: auto;
+	width: 75vw;
+	aspect-ratio: 1;
+	max-width: 45vh;
+	box-shadow: 0.3em 0.3em 1em #080808;
+	border-radius: 10px;
+}
+#seekBar {
+	width: 100%;
+}
+#controls {
+	display: flex;
+	justify-content: space-around;
+	width: 100%;
+	/* gap: 5px; */
+}
+#controls > button {
+	padding: 0;
+	border: 0;
+	height: 5em;
+}
+#controls > button > img {
+	height: 100%;
+	background-color: var(--main-background-color);
+}
+@media (orientation: landscape) {
+	.frame {
+		flex-direction: row;
+		justify-content: space-evenly;
+	}
+	#album-cover {
+		height: 90%;
+		width: auto;
+		max-height: 45vw;
+		max-width: none;
+	}
+	#control-panel {
+		width: 45%;
+	}
+	#control-panel > * {
+		width: 100%;
+	}
+}
