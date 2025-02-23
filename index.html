@@ -35,13 +35,13 @@
 			/>
 			<div id="controls">
 				<button onclick="prev()" disabled>
-					<img src="media/skipPrev.png">
+					<img id="prev-icon" src="media/skipPrev.png">
 				</button>
 				<button onclick="playback()" disabled>
-					<img src="media/playPause.png">
+					<img id="playback-icon" src="media/play.png">
 				</button>
 				<button onclick="next()" disabled>
-					<img src="media/skipNext.png">
+					<img id="next-icon" src="media/skipNext.png">
 				</button>
 			</div>
 		</div>
@@ -72,7 +72,7 @@
 		
 		function setSong(file) {
 			audioPlayer.src = URL.createObjectURL(file);
-			audioPlayer.play();
+			resume();
 			jsmediatags.read(file, {
 				onSuccess: setMetadata
 			});
@@ -82,10 +82,12 @@
 		
 		function resume() {
 			audioPlayer.play();
+			document.querySelector("#playback-icon").src = "media/pause.png";
 		}
 		
 		function pause() {
 			audioPlayer.pause();
+			document.querySelector("#playback-icon").src = "media/play.png";
 		}
 		
 		function playback() {
