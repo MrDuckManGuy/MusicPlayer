@@ -4,6 +4,7 @@
 	<title>MusicPlayer</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
 	<meta name="apple-mobile-web-app-capable" content="yes">
+	<link rel="manifest" href="manifest.json" />
 	<link rel='stylesheet' type='text/css' media='screen' href='style.css'>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 </head>
@@ -46,22 +47,21 @@
 			</div>
 		</div>
 	</div>
-	
-	
+
 	<script>
 		const jsmediatags = window.jsmediatags;
-		
+
 		let currentSong;
 		let songs = [];
-		
+
 		const audioPlayer = document.getElementById("audioPlayer");
 		const seekBar = document.getElementById("seekBar");
 		const controls = document.getElementById("controls");
-		
+
 		const title = document.getElementById("title");
 		const artist = document.getElementById("artist");
 		const albumCover = document.getElementById("album-cover");
-	
+
 		function setAudio(event) {
 			songs = event.target.files;
 			currentSong = 0;
@@ -69,7 +69,7 @@
 			seekBar.disabled = false;
 			for (let btn of controls.children) btn.disabled = false;
 		}
-		
+
 		function setSong(file) {
 			audioPlayer.src = URL.createObjectURL(file);
 			resume();
@@ -77,19 +77,19 @@
 				onSuccess: setMetadata
 			});
 		}
-		
+
 		// controls
-		
+
 		function resume() {
 			audioPlayer.play();
 			document.querySelector("#playback-icon").src = "media/pause.png";
 		}
-		
+
 		function pause() {
 			audioPlayer.pause();
 			document.querySelector("#playback-icon").src = "media/play.png";
 		}
-		
+
 		function playback() {
 			if (audioPlayer.paused) {
 				resume();
@@ -97,7 +97,7 @@
 				pause();
 			}
 		}
-		
+
 		function prev() {
 			if (audioPlayer.currentTime > 3) {
 				audioPlayer.currentTime = 0;
@@ -106,12 +106,12 @@
 			updateSongIndex(-1);
 			setSong(songs[currentSong]);
 		}
-		
+
 		function next() {
 			updateSongIndex(1);
 			setSong(songs[currentSong]);
 		}
-		
+
 		function updateSongIndex(adv) {
 			currentSong += adv;
 			currentSong %= songs.length;
@@ -119,25 +119,25 @@
 				currentSong = songs.length + currentSong;
 			}
 		}
-		
+
 		function seek(event) {
 			const pos = event.target.value / 100 * audioPlayer.duration;
 			audioPlayer.fastSeek(pos);
 		}
-		
+
 		// events
-		
+
 		setInterval(() => {
 			const pos = audioPlayer.currentTime / audioPlayer.duration * 100;
 			seekBar.value = pos;
 		}, 500);
-		
+
 		audioPlayer.addEventListener("ended", () => {
 			next();
 		});
-		
+
 		// metadata
-		
+
 		function setMetadata(tag) {
 			const tags = tag.tags;
 			title.textContent = tags.title ? tags.title : "-";
@@ -149,14 +149,13 @@
 					artist: tags.artist,
 					artwork: [{ src: albumCover.src }]
 				});
-				
 				navigator.mediaSession.setActionHandler("play", () => resume());
 				navigator.mediaSession.setActionHandler("pause", () => pause());
 				navigator.mediaSession.setActionHandler("previoustrack", () => prev());
 				navigator.mediaSession.setActionHandler("nexttrack", () => next());
 			}
 		}
-		
+
 		function decodeImg(imgData) {
 			if (!imgData) {
 				return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
