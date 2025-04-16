@@ -1,5 +1,9 @@
 {
 	"name": "MusicPlayer",
+	"start_url": "/",
+	"display": "standalone",
+	"theme_color": "#222222",
+	"background_color": "#222222",
 	"icons": [
 		{
 			"src": "media/icon-192.png",
@@ -11,9 +15,5 @@
 			"sizes": "512x512",
 			"type": "image/png"
 		}
-	],
-	"start_url": "/",
-	"display": "standalone",
-	"theme_color": "#222222",
-	"background_color": "#222222"
+	]
 }
