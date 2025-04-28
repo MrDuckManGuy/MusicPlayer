@@ -69,10 +69,24 @@ body {
 	height: 100%;
 	background-color: var(--main-background-color);
 }
+#queue-toggle {
+	background-color: gray;
+	padding-inline: 1em;
+	padding-block: 0.5em;
+	border-radius: 1em;
+	border: none;
+}
+#song-queue {
+	display: none;
+}
+#song-queue > * {
+	margin-block: 1em;
+}
 @media (orientation: landscape) {
 	#frame {
 		flex-direction: row;
 		justify-content: space-evenly;
+		overflow: hidden;
 	}
 	#album-cover {
 		height: 90%;
@@ -82,15 +96,12 @@ body {
 		margin: 0;
 	}
 	#control-panel {
+		height: 100vh;
 		width: 45%;
+		justify-content: safe center;
+		overflow: auto;
 	}
 	#control-panel > * {
 		width: 100%;
 	}
-}
-#song-queue {
-	display: none;
-}
-#song-queue > * {
-	margin-block: 1em;
 }

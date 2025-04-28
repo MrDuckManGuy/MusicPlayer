@@ -48,7 +48,9 @@
 				</button>
 			</div>
 			<div id="song-queue"></div>
-			<button id="queue-toggle" onclick="toggleQueue()">queue</button>
+			<div style="display: flex; justify-content: center;">
+				<button id="queue-toggle" onclick="toggleQueue()">queue</button>
+			</div>
 		</div>
 	</div>
 
@@ -63,6 +65,7 @@
 		const controls = document.getElementById("controls");
 		const songQueue = document.getElementById("song-queue");
 		const frame = document.getElementById("frame");
+		const controlPanel = document.getElementById("control-panel");
 
 		const title = document.getElementById("title");
 		const artist = document.getElementById("artist");
@@ -152,7 +155,11 @@
 				songQueue.style.display = "none";
 			} else {
 				songQueue.style.display = "block";
-				frame.scrollTop = songQueue.offsetTop;
+				if (window.matchMedia("(orientation: landscape)").matches) {
+					controlPanel.scrollTop = songQueue.offsetTop;
+				} else {
+					frame.scrollTop = songQueue.offsetTop;
+				}
 			}
 		}
 
