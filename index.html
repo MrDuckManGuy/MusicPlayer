@@ -73,14 +73,16 @@
 
 		function setAudio(event) {
 			songs = event.target.files;
-			currentSong = 0;
-			setSong(songs[0]);
 			initSongQueueElements();
+			currentSong = 0;
+			setSong();
 			seekBar.disabled = false;
 			for (let btn of controls.children) btn.disabled = false;
 		}
 
-		function setSong(file) {
+		function setSong() {
+			setPlayingQueue();
+			const file = songs[currentSong];
 			audioPlayer.src = URL.createObjectURL(file);
 			resume();
 			jsmediatags.read(file, {
@@ -95,11 +97,18 @@
 				songQueueElement.textContent = song.name;
 				songQueueElement.onclick = () => {
 					currentSong = index;
-					setSong(songs[index]);
+					setSong();
 					toggleQueue();
 				}
 				songQueue.appendChild(songQueueElement);
 			});
+		}
+
+		function setPlayingQueue() {
+			Array.from(songQueue.children).forEach(song => {
+				song.classList.remove("playing");
+			});
+			songQueue.children[currentSong].classList.add("playing");
 		}
 
 		// controls
@@ -128,12 +137,12 @@
 				return;
 			}
 			updateSongIndex(-1);
-			setSong(songs[currentSong]);
+			setSong();
 		}
 
 		function next() {
 			updateSongIndex(1);
-			setSong(songs[currentSong]);
+			setSong();
 		}
 
 		function updateSongIndex(adv) {
@@ -150,7 +159,7 @@
 		}
 
 		function toggleQueue() {
-			if (songs.length == 0) return;
+			if (songs.length <= 1) return;
 			if (songQueue.style.display === "block") {
 				songQueue.style.display = "none";
 			} else {

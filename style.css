@@ -1,5 +1,6 @@
 :root {
-	--main-background-color: #222
+	--main-background-color: #222;
+	--secondary-background-color: #333;
 }
 * {
 	user-select: none;
@@ -80,7 +81,10 @@ body {
 	display: none;
 }
 #song-queue > * {
-	margin-block: 1em;
+	padding: 0.5em;
+}
+#song-queue > *.playing {
+	background-color: var(--secondary-background-color);
 }
 @media (orientation: landscape) {
 	#frame {
