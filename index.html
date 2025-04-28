@@ -12,7 +12,7 @@
 </head>
 <body ontouchstart="">
 
-	<div class="frame">
+	<div id="frame">
 		<img id="album-cover" />
 		<div id="control-panel">
 			<div id="metadata">
@@ -47,9 +47,9 @@
 					<img id="next-icon" class="control-icon" src="media/skipNext.png">
 				</button>
 			</div>
+			<div id="song-queue"></div>
+			<button id="queue-toggle" onclick="toggleQueue()">queue</button>
 		</div>
-		<div id="song-queue"></div>
-		<button id="queue-toggle" onclick="toggleQueue()">queue</button>
 	</div>
 
 	<script>
@@ -62,6 +62,7 @@
 		const seekBar = document.getElementById("seekBar");
 		const controls = document.getElementById("controls");
 		const songQueue = document.getElementById("song-queue");
+		const frame = document.getElementById("frame");
 
 		const title = document.getElementById("title");
 		const artist = document.getElementById("artist");
@@ -151,6 +152,7 @@
 				songQueue.style.display = "none";
 			} else {
 				songQueue.style.display = "block";
+				frame.scrollTop = songQueue.offsetTop;
 			}
 		}
 

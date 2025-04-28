@@ -17,7 +17,7 @@ body {
 	height: 100vh;
 	background-color: var(--main-background-color);
 }
-.frame {
+#frame {
 	display: flex;
 	flex-direction: column;
 	justify-content: start;
@@ -25,7 +25,7 @@ body {
 	height: 100%;
 	overflow: auto;
 }
-.frame > *, #control-panel > * {
+#frame > *, #control-panel > * {
 	margin: 2vh 0;
 }
 #control-panel {
@@ -70,7 +70,7 @@ body {
 	background-color: var(--main-background-color);
 }
 @media (orientation: landscape) {
-	.frame {
+	#frame {
 		flex-direction: row;
 		justify-content: space-evenly;
 	}
@@ -79,6 +79,7 @@ body {
 		width: auto;
 		max-height: 45vw;
 		max-width: none;
+		margin: 0;
 	}
 	#control-panel {
 		width: 45%;
