@@ -5,6 +5,7 @@
 	user-select: none;
 	-webkit-user-select: none;
 	color: white;
+	font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
 }
 html {
 	margin: 0;
@@ -36,7 +37,6 @@ body {
 #metadata > * {
 	text-align: center;
 	margin: 0;
-	font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
 }
 #album-cover {
 	height: auto;
@@ -89,4 +89,7 @@ body {
 }
 #song-queue {
 	display: none;
+}
+#song-queue > * {
+	margin-block: 1em;
 }

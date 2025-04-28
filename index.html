@@ -85,9 +85,15 @@
 		}
 
 		function initSongQueueElements() {
-			Array.from(songs).forEach(song => {
+			songQueue.replaceChildren();
+			Array.from(songs).forEach((song, index) => {
 				const songQueueElement = document.createElement("div");
 				songQueueElement.textContent = song.name;
+				songQueueElement.onclick = () => {
+					currentSong = index;
+					setSong(songs[index]);
+					toggleQueue();
+				}
 				songQueue.appendChild(songQueueElement);
 			});
 		}
