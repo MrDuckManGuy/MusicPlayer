@@ -48,6 +48,8 @@
 				</button>
 			</div>
 		</div>
+		<div id="song-queue"></div>
+		<button id="queue-toggle" onclick="toggleQueue()">queue</button>
 	</div>
 
 	<script>
@@ -59,6 +61,7 @@
 		const audioPlayer = document.getElementById("audioPlayer");
 		const seekBar = document.getElementById("seekBar");
 		const controls = document.getElementById("controls");
+		const songQueue = document.getElementById("song-queue");
 
 		const title = document.getElementById("title");
 		const artist = document.getElementById("artist");
@@ -68,6 +71,7 @@
 			songs = event.target.files;
 			currentSong = 0;
 			setSong(songs[0]);
+			initSongQueueElements();
 			seekBar.disabled = false;
 			for (let btn of controls.children) btn.disabled = false;
 		}
@@ -77,6 +81,14 @@
 			resume();
 			jsmediatags.read(file, {
 				onSuccess: setMetadata
+			});
+		}
+
+		function initSongQueueElements() {
+			Array.from(songs).forEach(song => {
+				const songQueueElement = document.createElement("div");
+				songQueueElement.textContent = song.name;
+				songQueue.appendChild(songQueueElement);
 			});
 		}
 
@@ -125,6 +137,15 @@
 		function seek(event) {
 			const pos = event.target.value / 100 * audioPlayer.duration;
 			audioPlayer.fastSeek(pos);
+		}
+
+		function toggleQueue() {
+			if (songs.length == 0) return;
+			if (songQueue.style.display === "block") {
+				songQueue.style.display = "none";
+			} else {
+				songQueue.style.display = "block";
+			}
 		}
 
 		// events

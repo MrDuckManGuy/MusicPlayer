@@ -85,3 +85,6 @@ body {
 		width: 100%;
 	}
 }
+#song-queue {
+	display: none;
+}
