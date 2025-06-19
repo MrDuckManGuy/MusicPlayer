@@ -26,10 +26,9 @@
 					onchange="setAudio(event)"
 					multiple
 				/>
+				<input id="directory-select" type="file" webkitdirectory />
 			</div>
-			<audio
-				id="audioPlayer">
-			</audio>
+			<audio id="audioPlayer"></audio>
 			<input
 				id="seekBar"
 				type="range"
@@ -47,9 +46,13 @@
 					<img id="next-icon" class="control-icon" src="media/skipNext.png">
 				</button>
 			</div>
+			<div id="song-cache"></div>
+			<div style="display: flex; justify-content: center;">
+				<button id="cache-toggle" class="toggle-button" onclick="toggleList('cache')">cache</button>
+			</div>
 			<div id="song-queue"></div>
 			<div style="display: flex; justify-content: center;">
-				<button id="queue-toggle" onclick="toggleQueue()">queue</button>
+				<button id="queue-toggle" class="toggle-button" onclick="toggleList('queue')">queue</button>
 			</div>
 		</div>
 	</div>
@@ -58,21 +61,29 @@
 		const jsmediatags = window.jsmediatags;
 
 		let currentSong;
-		let songs = [];
+		let songCache = [];
+		let songQueue = [];
 
 		const audioPlayer = document.getElementById("audioPlayer");
 		const seekBar = document.getElementById("seekBar");
 		const controls = document.getElementById("controls");
-		const songQueue = document.getElementById("song-queue");
+		const songCacheElement = document.querySelector("#song-cache");
+		const songQueueElement = document.getElementById("song-queue");
 		const frame = document.getElementById("frame");
 		const controlPanel = document.getElementById("control-panel");
+		const directorySelect = document.querySelector("#directory-select");
 
 		const title = document.getElementById("title");
 		const artist = document.getElementById("artist");
 		const albumCover = document.getElementById("album-cover");
 
+		function setSongCache(files) {
+			songCache = files;
+			initSongCacheElements();
+		}
+
 		function setAudio(event) {
-			songs = event.target.files;
+			songQueue = event.target.files;
 			initSongQueueElements();
 			currentSong = 0;
 			setSong();
@@ -82,7 +93,7 @@
 
 		function setSong() {
 			setPlayingQueue();
-			const file = songs[currentSong];
+			const file = songQueue[currentSong];
 			audioPlayer.src = URL.createObjectURL(file);
 			resume();
 			jsmediatags.read(file, {
@@ -90,25 +101,34 @@
 			});
 		}
 
+		function initSongCacheElements() {
+			songCacheElement.replaceChildren();
+			Array.from(songCache).forEach((song, index) => {
+				songCacheEntry = document.createElement("div");
+				songCacheEntry.textContent = song.name;
+				songCacheElement.appendChild(songCacheEntry);
+			});
+		}
+
 		function initSongQueueElements() {
-			songQueue.replaceChildren();
-			Array.from(songs).forEach((song, index) => {
-				const songQueueElement = document.createElement("div");
-				songQueueElement.textContent = song.name;
-				songQueueElement.onclick = () => {
+			songQueueElement.replaceChildren();
+			Array.from(songQueue).forEach((song, index) => {
+				const songQueueEntry = document.createElement("div");
+				songQueueEntry.textContent = song.name;
+				songQueueEntry.onclick = () => {
 					currentSong = index;
 					setSong();
-					toggleQueue();
+					toggleList("queue");
 				}
-				songQueue.appendChild(songQueueElement);
+				songQueueElement.appendChild(songQueueEntry);
 			});
 		}
 
 		function setPlayingQueue() {
-			Array.from(songQueue.children).forEach(song => {
+			Array.from(songQueueElement.children).forEach(song => {
 				song.classList.remove("playing");
 			});
-			songQueue.children[currentSong].classList.add("playing");
+			songQueueElement.children[currentSong].classList.add("playing");
 		}
 
 		// controls
@@ -147,9 +167,9 @@
 
 		function updateSongIndex(adv) {
 			currentSong += adv;
-			currentSong %= songs.length;
+			currentSong %= songQueue.length;
 			if (currentSong < 0) {
-				currentSong = songs.length + currentSong;
+				currentSong = songQueue.length + currentSong;
 			}
 		}
 
@@ -158,16 +178,27 @@
 			audioPlayer.fastSeek(pos);
 		}
 
-		function toggleQueue() {
-			if (songs.length <= 1) return;
-			if (songQueue.style.display === "block") {
-				songQueue.style.display = "none";
+		function toggleList(list) {
+			let songList, songListElement;
+			switch (list) {
+				case "cache":
+					songList = songCache;
+					songListElement = songCacheElement;
+					break;
+				case "queue":
+					songList = songQueue;
+					songListElement = songQueueElement;
+					break;
+			}
+			if (songList.length <= 1) return;
+			if (songListElement.style.display === "block") {
+				songListElement.style.display = "none";
 			} else {
-				songQueue.style.display = "block";
+				songListElement.style.display = "block";
 				if (window.matchMedia("(orientation: landscape)").matches) {
-					controlPanel.scrollTop = songQueue.offsetTop;
+					controlPanel.scrollTop = songListElement.offsetTop;
 				} else {
-					frame.scrollTop = songQueue.offsetTop;
+					frame.scrollTop = songListElement.offsetTop;
 				}
 			}
 		}
@@ -181,6 +212,10 @@
 
 		audioPlayer.addEventListener("ended", () => {
 			next();
+		});
+
+		directorySelect.addEventListener("change", event => {
+			setSongCache(event.target.files);
 		});
 
 		// metadata

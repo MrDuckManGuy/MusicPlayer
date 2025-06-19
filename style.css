@@ -70,12 +70,15 @@ body {
 	height: 100%;
 	background-color: var(--main-background-color);
 }
-#queue-toggle {
+.toggle-button {
 	background-color: gray;
 	padding-inline: 1em;
 	padding-block: 0.5em;
 	border-radius: 1em;
 	border: none;
+}
+#song-cache {
+	display: none;
 }
 #song-queue {
 	display: none;
