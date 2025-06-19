@@ -79,12 +79,12 @@
 
 		function setSongCache(files) {
 			songCache = files;
-			initSongCacheElements();
+			initSongListEntries("cache");
 		}
 
 		function setAudio(event) {
 			songQueue = event.target.files;
-			initSongQueueElements();
+			initSongListEntries("queue");
 			currentSong = 0;
 			setSong();
 			seekBar.disabled = false;
@@ -101,26 +101,30 @@
 			});
 		}
 
-		function initSongCacheElements() {
-			songCacheElement.replaceChildren();
-			Array.from(songCache).forEach((song, index) => {
-				songCacheEntry = document.createElement("div");
-				songCacheEntry.textContent = song.name;
-				songCacheElement.appendChild(songCacheEntry);
-			});
-		}
-
-		function initSongQueueElements() {
-			songQueueElement.replaceChildren();
-			Array.from(songQueue).forEach((song, index) => {
-				const songQueueEntry = document.createElement("div");
-				songQueueEntry.textContent = song.name;
-				songQueueEntry.onclick = () => {
-					currentSong = index;
-					setSong();
-					toggleList("queue");
+		function initSongListEntries(list) {
+			let songList, songListElement;
+			switch (list) {
+				case "cache":
+					songList = songCache;
+					songListElement = songCacheElement;
+					break;
+				case "queue":
+					songList = songQueue;
+					songListElement = songQueueElement;
+					break;
+			}
+			songListElement.replaceChildren();
+			Array.from(songList).forEach((song, index) => {
+				const songListEntry = document.createElement("div");
+				songListEntry.textContent = song.name;
+				if (list === "queue") {
+					songListEntry.onclick = () => {
+						currentSong = index;
+						setSong();
+						toggleList("queue");
+					}
 				}
-				songQueueElement.appendChild(songQueueEntry);
+				songListElement.appendChild(songListEntry);
 			});
 		}
 
