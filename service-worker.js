@@ -2,7 +2,7 @@ const cacheName = "cache-v1";
 const cacheFiles = [
 	"/",
 	"/index.html",
-	"/style.css"
+	"/style.css",
 	"/manifest.json",
 	"/media/apple-touch-icon.png",
 	"/media/icon-192.png",
