@@ -46,9 +46,9 @@
 					<img id="next-icon" class="control-icon" src="media/skipNext.png">
 				</button>
 			</div>
-			<div id="song-cache"></div>
+			<div id="song-library"></div>
 			<div style="display: flex; justify-content: center;">
-				<button id="cache-toggle" class="toggle-button" onclick="toggleList('cache')">cache</button>
+				<button id="library-toggle" class="toggle-button" onclick="toggleList('library')">library</button>
 			</div>
 			<div id="song-queue"></div>
 			<div style="display: flex; justify-content: center;">
@@ -61,13 +61,13 @@
 		const jsmediatags = window.jsmediatags;
 
 		let currentSong;
-		let songCache = [];
+		let songLibrary = [];
 		let songQueue = [];
 
 		const audioPlayer = document.getElementById("audioPlayer");
 		const seekBar = document.getElementById("seekBar");
 		const controls = document.getElementById("controls");
-		const songCacheElement = document.querySelector("#song-cache");
+		const songLibraryElement = document.querySelector("#song-library");
 		const songQueueElement = document.getElementById("song-queue");
 		const frame = document.getElementById("frame");
 		const controlPanel = document.getElementById("control-panel");
@@ -77,9 +77,9 @@
 		const artist = document.getElementById("artist");
 		const albumCover = document.getElementById("album-cover");
 
-		function setSongCache(files) {
-			songCache = files;
-			initSongListEntries("cache");
+		function setSongLibrary(files) {
+			songLibrary = files;
+			initSongListEntries("library");
 		}
 
 		function setAudio(event) {
@@ -104,9 +104,9 @@
 		function initSongListEntries(list) {
 			let songList, songListElement;
 			switch (list) {
-				case "cache":
-					songList = songCache;
-					songListElement = songCacheElement;
+				case "library":
+					songList = songLibrary;
+					songListElement = songLibraryElement;
 					break;
 				case "queue":
 					songList = songQueue;
@@ -185,9 +185,9 @@
 		function toggleList(list) {
 			let songList, songListElement;
 			switch (list) {
-				case "cache":
-					songList = songCache;
-					songListElement = songCacheElement;
+				case "library":
+					songList = songLibrary;
+					songListElement = songLibraryElement;
 					break;
 				case "queue":
 					songList = songQueue;
@@ -219,7 +219,7 @@
 		});
 
 		directorySelect.addEventListener("change", event => {
-			setSongCache(event.target.files);
+			setSongLibrary(event.target.files);
 		});
 
 		// service worker
