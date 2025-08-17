@@ -33,7 +33,7 @@ body {
 	justify-content: center;
 	align-items: center;
 }
-#frame {
+#player-tab {
 	display: flex;
 	flex-direction: column;
 	justify-content: start;
@@ -41,7 +41,7 @@ body {
 	height: 100%;
 	overflow: auto;
 }
-#frame > *, #control-panel > * {
+#player-tab > *, #control-panel > * {
 	margin: 2vh 0;
 }
 #control-panel {
@@ -105,7 +105,7 @@ body {
 	background-color: var(--secondary-background-color);
 }
 @media (orientation: landscape) {
-	#frame {
+	#player-tab {
 		flex-direction: row;
 		justify-content: space-evenly;
 		overflow: hidden;

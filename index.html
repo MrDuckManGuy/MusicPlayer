@@ -13,7 +13,7 @@
 <body ontouchstart="">
 
 	<div id="tab-container">
-		<div id="frame">
+		<div id="player-tab">
 			<img id="album-cover" />
 			<div id="control-panel">
 				<div id="metadata">
@@ -76,7 +76,7 @@
 		const controls = document.getElementById("controls");
 		const songLibraryElement = document.querySelector("#song-library");
 		const songQueueElement = document.getElementById("song-queue");
-		const frame = document.getElementById("frame");
+		const playerTab = document.querySelector("#playerTab");
 		const controlPanel = document.getElementById("control-panel");
 		const directorySelect = document.querySelector("#directory-select");
 
@@ -209,7 +209,7 @@
 				if (window.matchMedia("(orientation: landscape)").matches) {
 					controlPanel.scrollTop = songListElement.offsetTop;
 				} else {
-					frame.scrollTop = songListElement.offsetTop;
+					playerTab.scrollTop = songListElement.offsetTop;
 				}
 			}
 		}
