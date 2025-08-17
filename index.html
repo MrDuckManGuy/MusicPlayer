@@ -12,48 +12,55 @@
 </head>
 <body ontouchstart="">
 
-	<div id="frame">
-		<img id="album-cover" />
-		<div id="control-panel">
-			<div id="metadata">
-				<p id="title">-</p>
-				<p id="artist">-</p>
-			</div>
-			<div>
+	<div id="tab-container">
+		<div id="frame">
+			<img id="album-cover" />
+			<div id="control-panel">
+				<div id="metadata">
+					<p id="title">-</p>
+					<p id="artist">-</p>
+				</div>
+				<div>
+					<input
+						type="file"
+						accept=".mp3,.m4a"
+						onchange="setAudio(event)"
+						multiple
+					/>
+					<input id="directory-select" type="file" webkitdirectory />
+				</div>
+				<audio id="audioPlayer"></audio>
 				<input
-					type="file"
-					accept=".mp3,.m4a"
-					onchange="setAudio(event)"
-					multiple
+					id="seekBar"
+					type="range"
+					onInput="seek(event)"
+					disabled
 				/>
-				<input id="directory-select" type="file" webkitdirectory />
+				<div id="controls">
+					<button class="control-btn" onclick="prev()" disabled>
+						<img id="prev-icon" class="control-icon" src="media/skipPrev.png">
+					</button>
+					<button class="control-btn" onclick="playback()" disabled>
+						<img id="playback-icon" class="control-icon" src="media/play.png">
+					</button>
+					<button class="control-btn" onclick="next()" disabled>
+						<img id="next-icon" class="control-icon" src="media/skipNext.png">
+					</button>
+				</div>
+				<div id="song-library"></div>
+				<div style="display: flex; justify-content: center;">
+					<button id="library-toggle" class="toggle-button" onclick="toggleList('library')">library</button>
+				</div>
+				<div id="song-queue"></div>
+				<div style="display: flex; justify-content: center;">
+					<button id="queue-toggle" class="toggle-button" onclick="toggleList('queue')">queue</button>
+				</div>
 			</div>
-			<audio id="audioPlayer"></audio>
-			<input
-				id="seekBar"
-				type="range"
-				onInput="seek(event)"
-				disabled
-			/>
-			<div id="controls">
-				<button class="control-btn" onclick="prev()" disabled>
-					<img id="prev-icon" class="control-icon" src="media/skipPrev.png">
-				</button>
-				<button class="control-btn" onclick="playback()" disabled>
-					<img id="playback-icon" class="control-icon" src="media/play.png">
-				</button>
-				<button class="control-btn" onclick="next()" disabled>
-					<img id="next-icon" class="control-icon" src="media/skipNext.png">
-				</button>
-			</div>
-			<div id="song-library"></div>
-			<div style="display: flex; justify-content: center;">
-				<button id="library-toggle" class="toggle-button" onclick="toggleList('library')">library</button>
-			</div>
-			<div id="song-queue"></div>
-			<div style="display: flex; justify-content: center;">
-				<button id="queue-toggle" class="toggle-button" onclick="toggleList('queue')">queue</button>
-			</div>
+		</div>
+		<div id="library-tab">
+			<div>All Songs</div>
+			<div>Artists</div>
+			<div>Playlists</div>
 		</div>
 	</div>
 
@@ -77,7 +84,7 @@
 		const artist = document.getElementById("artist");
 		const albumCover = document.getElementById("album-cover");
 
-		function setSongLibrary(files) {
+		function loadSongLibrary(files) {
 			songLibrary = files;
 			initSongListEntries("library");
 		}
@@ -219,7 +226,7 @@
 		});
 
 		directorySelect.addEventListener("change", event => {
-			setSongLibrary(event.target.files);
+			loadSongLibrary(event.target.files);
 		});
 
 		// service worker
