@@ -7,6 +7,7 @@
 	-webkit-user-select: none;
 	color: white;
 	font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+	box-sizing: border-box;
 }
 html {
 	margin: 0;
@@ -26,6 +27,17 @@ body {
 #tab-container > * {
 	flex: 0 0 100vw;
 	height: 100%;
+}
+#tab-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 1em;
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	padding: 1em;
+	background-color: var(--secondary-background-color);
 }
 #library-tab {
 	display: flex;
@@ -105,6 +117,12 @@ body {
 	background-color: var(--secondary-background-color);
 }
 @media (orientation: landscape) {
+	#tab-bar {
+		flex-direction: column;
+		width: auto;
+		height: 100%;
+		right: 0;
+	}
 	#player-tab {
 		flex-direction: row;
 		justify-content: space-evenly;

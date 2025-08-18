@@ -63,6 +63,10 @@
 			<div>Playlists</div>
 		</div>
 	</div>
+	<nav id="tab-bar">
+		<a href="#player-tab">player</a>
+		<a href="#library-tab">library</a>
+	</nav>
 
 	<script>
 		const jsmediatags = window.jsmediatags;
@@ -227,6 +231,18 @@
 
 		directorySelect.addEventListener("change", event => {
 			loadSongLibrary(event.target.files);
+		});
+
+		document.querySelectorAll("#tab-bar a").forEach(i => {
+			i.addEventListener("click", event => {
+				event.preventDefault();
+				const targetId = event.currentTarget.getAttribute("href");
+				const targetTab = document.querySelector(targetId);
+				targetTab.scrollIntoView({
+					behavior: "smooth",
+					block: "start"
+				});
+			});
 		});
 
 		// service worker
