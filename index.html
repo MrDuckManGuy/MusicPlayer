@@ -144,6 +144,13 @@
 			songQueueElement.children[currentSong].classList.add("playing");
 		}
 
+		function focusTab(tabID) {
+			document.querySelector(tabID).scrollIntoView({
+				behavior: "smooth",
+				block: "start"
+			});
+		}
+
 		// controls
 
 		function resume() {
@@ -205,13 +212,6 @@
 		directorySelect.addEventListener("change", event => {
 			loadSongLibrary(event.target.files);
 		});
-
-		function focusTab(tabID) {
-			document.querySelector(tabID).scrollIntoView({
-				behavior: "smooth",
-				block: "start"
-			});
-		}
 
 		// service worker
 
