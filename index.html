@@ -64,8 +64,8 @@
 		</div>
 	</div>
 	<nav id="tab-bar">
-		<a href="#player-tab">player</a>
-		<a href="#library-tab">library</a>
+		<button onclick="focusTab('#player-tab')">player</button>
+		<button onclick="focusTab('#library-tab')">library</button>
 	</nav>
 
 	<script>
@@ -233,17 +233,12 @@
 			loadSongLibrary(event.target.files);
 		});
 
-		document.querySelectorAll("#tab-bar a").forEach(i => {
-			i.addEventListener("click", event => {
-				event.preventDefault();
-				const targetId = event.currentTarget.getAttribute("href");
-				const targetTab = document.querySelector(targetId);
-				targetTab.scrollIntoView({
-					behavior: "smooth",
-					block: "start"
-				});
+		function focusTab(tabID) {
+			document.querySelector(tabID).scrollIntoView({
+				behavior: "smooth",
+				block: "start"
 			});
-		});
+		}
 
 		// service worker
 
