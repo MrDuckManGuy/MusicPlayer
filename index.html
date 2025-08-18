@@ -48,13 +48,6 @@
 					</button>
 				</div>
 				<div id="song-library"></div>
-				<div style="display: flex; justify-content: center;">
-					<button id="library-toggle" class="toggle-button" onclick="toggleList('library')">library</button>
-				</div>
-				<div id="song-queue"></div>
-				<div style="display: flex; justify-content: center;">
-					<button id="queue-toggle" class="toggle-button" onclick="toggleList('queue')">queue</button>
-				</div>
 			</div>
 		</div>
 		<div id="library-tab">
@@ -62,10 +55,15 @@
 			<div>Artists</div>
 			<div>Playlists</div>
 		</div>
+		<div id="queue-tab">
+			<h1>Song Queue</h1>
+			<div id="song-queue"></div>
+		</div>
 	</div>
 	<nav id="tab-bar">
 		<button onclick="focusTab('#player-tab')">player</button>
 		<button onclick="focusTab('#library-tab')">library</button>
+		<button onclick="focusTab('#queue-tab')">queue</button>
 	</nav>
 
 	<script>
@@ -132,7 +130,7 @@
 					songListEntry.onclick = () => {
 						currentSong = index;
 						setSong();
-						toggleList("queue");
+						focusTab("#player-tab");
 					}
 				}
 				songListElement.appendChild(songListEntry);
@@ -191,31 +189,6 @@
 		function seek(event) {
 			const pos = event.target.value / 100 * audioPlayer.duration;
 			audioPlayer.fastSeek(pos);
-		}
-
-		function toggleList(list) {
-			let songList, songListElement;
-			switch (list) {
-				case "library":
-					songList = songLibrary;
-					songListElement = songLibraryElement;
-					break;
-				case "queue":
-					songList = songQueue;
-					songListElement = songQueueElement;
-					break;
-			}
-			if (songList.length <= 1) return;
-			if (songListElement.style.display === "block") {
-				songListElement.style.display = "none";
-			} else {
-				songListElement.style.display = "block";
-				if (window.matchMedia("(orientation: landscape)").matches) {
-					controlPanel.scrollTop = songListElement.offsetTop;
-				} else {
-					playerTab.scrollTop = songListElement.offsetTop;
-				}
-			}
 		}
 
 		// events

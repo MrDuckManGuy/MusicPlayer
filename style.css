@@ -27,6 +27,7 @@ body {
 }
 #tab-container > * {
 	flex: 0 0 100vh;
+	padding-bottom: 4em;
 }
 #tab-bar {
 	display: flex;
@@ -38,6 +39,12 @@ body {
 	bottom: 0;
 	padding: 1em;
 	background-color: var(--secondary-background-color);
+}
+#queue-tab {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow: hidden;
 }
 #library-tab {
 	display: flex;
@@ -104,11 +111,11 @@ body {
 	border-radius: 1em;
 	border: none;
 }
-#song-cache {
+#song-library {
 	display: none;
 }
 #song-queue {
-	display: none;
+	overflow: auto;
 }
 #song-queue > * {
 	padding: 0.5em;
