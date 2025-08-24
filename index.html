@@ -24,7 +24,7 @@
 					<input
 						type="file"
 						accept=".mp3,.m4a"
-						onchange="setAudio(event)"
+						onchange="setAudio(event.target.files)"
 						multiple
 					/>
 					<input id="directory-select" type="file" webkitdirectory />
@@ -102,13 +102,13 @@
 		const albumCover = document.getElementById("album-cover");
 
 		function loadSongLibrary(files) {
-			songLibrary = files;
+			songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
 			// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 			initSongListEntries("library");
 		}
 
-		function setAudio(event) {
-			songQueue = event.target.files;
+		function setAudio(files) {
+			songQueue = Array.from(files);
 			initSongListEntries("queue");
 			currentSong = 0;
 			setSong();
@@ -137,18 +137,30 @@
 					songList = songQueue;
 					songListElement = songQueueElement;
 					break;
+				default:
+					break;
 			}
 			songListElement.replaceChildren();
-			Array.from(songList).forEach((song, index) => {
+			songList.forEach((song, index) => {
 				const songListEntry = document.createElement("div");
 				songListEntry.classList.add("song-list-entry");
 				songListEntry.textContent = song.name;
-				if (list === "queue") {
-					songListEntry.onclick = () => {
-						currentSong = index;
-						setSong();
-						focusTab("#player-tab");
-					}
+				switch (list) {
+					case "library":
+						songListEntry.onclick = () => {
+							setAudio([song]);
+							focusTab("#player-tab");
+						}
+						break;
+					case "queue":
+						songListEntry.onclick = () => {
+							currentSong = index;
+							setSong();
+							focusTab("#player-tab");
+						}
+						break;
+					default:
+						break;
 				}
 				songListElement.appendChild(songListEntry);
 			});
