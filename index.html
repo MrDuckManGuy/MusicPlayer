@@ -47,25 +47,27 @@
 						<img id="next-icon" class="control-icon" src="media/skipNext.png">
 					</button>
 				</div>
-				<div id="song-library"></div>
 			</div>
 		</div>
 		<div id="library-tab" class="tab">
 			<div id="library-menu" class="library-page">
 				<h1>Song Library</h1>
-				<a href="#all-songs-page">All Songs</a>
-				<a href="#artists-page">Artists</a>
-				<a href="#playlists-page">Playlists</a>
+				<nav id="library-menu-nav">
+					<a href="#all-songs-page">All Songs</a>
+					<a href="#artists-page">Artists</a>
+					<a href="#playlists-page">Playlists</a>
+				</nav>
 			</div>
 			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
 			<div id="all-songs-page" class="library-page">
-				<div>songs</div>
+				<h2>All Songs</h2>
+				<div id="song-library"></div>
 			</div>
 			<div id="artists-page" class="library-page">
-				<div>artists</div>
+				<h2>Artists</h2>
 			</div>
 			<div id="playlists-page" class="library-page">
-				<div>playlists</div>
+				<h2>Playlists</h2>
 			</div>
 		</div>
 		<div id="queue-tab" class="tab">
@@ -139,6 +141,7 @@
 			songListElement.replaceChildren();
 			Array.from(songList).forEach((song, index) => {
 				const songListEntry = document.createElement("div");
+				songListEntry.classList.add("song-list-entry");
 				songListEntry.textContent = song.name;
 				if (list === "queue") {
 					songListEntry.onclick = () => {

@@ -58,16 +58,21 @@ body {
 	overflow: hidden;
 	scroll-behavior: smooth;
 }
-#library-tab > * {
-	width: 100%;
-}
 .library-page {
 	display: flex;
 	flex-direction: column;
+	justify-content: start;
 	align-items: center;
-	justify-content: center;
 	flex: 0 0 100vw;
 	height: 100%;
+	width: 100%;
+}
+#library-menu-nav {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	margin-block: auto;
 }
 #library-back-btn {
 	position: sticky;
@@ -134,15 +139,20 @@ body {
 	border: none;
 }
 #song-library {
-	display: none;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden scroll;
+	width: 100%;
+	padding-inline: 1em;
+	margin-bottom: 1em;
 }
 #song-queue {
 	overflow: auto;
 }
-#song-queue > * {
+.song-list-entry {
 	padding: 0.5em;
 }
-#song-queue > *.playing {
+.song-list-entry.playing {
 	background-color: var(--bg2);
 }
 @media (orientation: landscape) {
