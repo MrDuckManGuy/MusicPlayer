@@ -53,6 +53,7 @@ body {
 	overflow: hidden;
 }
 #library-tab {
+	flex-direction: row;
 	justify-content: start;
 	overflow: hidden;
 	scroll-behavior: smooth;
@@ -65,12 +66,16 @@ body {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	flex: 0 0 100vh;
+	flex: 0 0 100vw;
+	height: 100%;
 }
 #library-back-btn {
 	position: sticky;
 	top: 0;
+	left: 0;
 	padding: 1em;
+	align-self: start;
+	flex-shrink: 0;
 }
 #player-tab {
 	justify-content: start;
