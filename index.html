@@ -13,7 +13,7 @@
 <body ontouchstart="">
 
 	<div id="tab-container">
-		<div id="player-tab">
+		<div id="player-tab" class="tab">
 			<img id="album-cover" />
 			<div id="control-panel">
 				<div id="metadata">
@@ -50,12 +50,25 @@
 				<div id="song-library"></div>
 			</div>
 		</div>
-		<div id="library-tab">
-			<div>All Songs</div>
-			<div>Artists</div>
-			<div>Playlists</div>
+		<div id="library-tab" class="tab">
+			<div id="library-menu" class="library-page">
+				<h1>Song Library</h1>
+				<a href="#all-songs-page">All Songs</a>
+				<a href="#artists-page">Artists</a>
+				<a href="#playlists-page">Playlists</a>
+			</div>
+			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
+			<div id="all-songs-page" class="library-page">
+				<div>songs</div>
+			</div>
+			<div id="artists-page" class="library-page">
+				<div>artists</div>
+			</div>
+			<div id="playlists-page" class="library-page">
+				<div>playlists</div>
+			</div>
 		</div>
-		<div id="queue-tab">
+		<div id="queue-tab" class="tab">
 			<h1>Song Queue</h1>
 			<div id="song-queue"></div>
 		</div>
@@ -88,6 +101,7 @@
 
 		function loadSongLibrary(files) {
 			songLibrary = files;
+			// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 			initSongListEntries("library");
 		}
 
