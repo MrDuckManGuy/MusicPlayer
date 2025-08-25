@@ -138,7 +138,7 @@ body {
 	border-radius: 1em;
 	border: none;
 }
-#song-library {
+.song-list {
 	display: flex;
 	flex-direction: column;
 	overflow: hidden scroll;
@@ -146,11 +146,9 @@ body {
 	padding-inline: 1em;
 	margin-bottom: 1em;
 }
-#song-queue {
-	overflow: auto;
-}
 .song-list-entry {
 	padding: 0.5em;
+	overflow-wrap: anywhere;
 }
 .song-list-entry.playing {
 	background-color: var(--bg2);
