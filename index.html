@@ -13,6 +13,31 @@
 <body ontouchstart="">
 
 	<div id="tab-container">
+		<div id="library-tab" class="tab">
+			<div id="library-menu" class="library-page">
+				<h1>Song Library</h1>
+				<nav id="library-menu-nav">
+					<a href="#all-songs-page">All Songs</a>
+					<a href="#artists-page">Artists</a>
+					<a href="#playlists-page">Playlists</a>
+					<div id="directory-select-container">
+						<label id="directory-select-button" for="directory-select">Choose Directory</label>
+						<input id="directory-select" type="file" webkitdirectory />
+					</div>
+				</nav>
+			</div>
+			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
+			<div id="all-songs-page" class="library-page">
+				<h2>All Songs</h2>
+				<div id="song-library" class="song-list"></div>
+			</div>
+			<div id="artists-page" class="library-page">
+				<h2>Artists</h2>
+			</div>
+			<div id="playlists-page" class="library-page">
+				<h2>Playlists</h2>
+			</div>
+		</div>
 		<div id="player-tab" class="tab">
 			<img id="album-cover" />
 			<div id="control-panel">
@@ -20,6 +45,7 @@
 					<p id="title">-</p>
 					<p id="artist">-</p>
 				</div>
+				<!--
 				<div>
 					<input
 						type="file"
@@ -27,8 +53,8 @@
 						onchange="setAudio(event.target.files)"
 						multiple
 					/>
-					<input id="directory-select" type="file" webkitdirectory />
 				</div>
+				-->
 				<audio id="audioPlayer"></audio>
 				<input
 					id="seekBar"
@@ -49,35 +75,14 @@
 				</div>
 			</div>
 		</div>
-		<div id="library-tab" class="tab">
-			<div id="library-menu" class="library-page">
-				<h1>Song Library</h1>
-				<nav id="library-menu-nav">
-					<a href="#all-songs-page">All Songs</a>
-					<a href="#artists-page">Artists</a>
-					<a href="#playlists-page">Playlists</a>
-				</nav>
-			</div>
-			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
-			<div id="all-songs-page" class="library-page">
-				<h2>All Songs</h2>
-				<div id="song-library" class="song-list"></div>
-			</div>
-			<div id="artists-page" class="library-page">
-				<h2>Artists</h2>
-			</div>
-			<div id="playlists-page" class="library-page">
-				<h2>Playlists</h2>
-			</div>
-		</div>
 		<div id="queue-tab" class="tab">
 			<h1>Song Queue</h1>
 			<div id="song-queue" class="song-list"></div>
 		</div>
 	</div>
 	<nav id="tab-bar">
-		<button onclick="focusTab('#player-tab')">player</button>
 		<button onclick="focusTab('#library-tab')">library</button>
+		<button onclick="focusTab('#player-tab')">player</button>
 		<button onclick="focusTab('#queue-tab')">queue</button>
 	</nav>
 

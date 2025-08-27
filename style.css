@@ -20,6 +20,9 @@ body {
 	height: 100vh;
 	background-color: var(--bg1);
 }
+button {
+	cursor: pointer;
+}
 #tab-container {
 	display: flex;
 	flex-direction: column;
@@ -59,6 +62,9 @@ body {
 	overflow: hidden;
 	scroll-behavior: smooth;
 }
+
+/* library */
+
 .library-page {
 	display: flex;
 	flex-direction: column;
@@ -84,6 +90,20 @@ body {
 	align-self: start;
 	flex-shrink: 0;
 }
+#directory-select {
+	display: none;
+}
+#directory-select-container {
+	margin-top: 1em;
+}
+#directory-select-button {
+	padding: 0.5em;
+	background-color: var(--bg3);
+	cursor: pointer;
+}
+
+/* player */
+
 #player-tab {
 	justify-content: start;
 	height: 100%;
@@ -140,6 +160,9 @@ body {
 	border-radius: 1em;
 	border: none;
 }
+
+/* song list */
+
 .song-list {
 	display: flex;
 	flex-direction: column;
@@ -176,6 +199,9 @@ body {
 	border: 0;
 	background-color: var(--bg3);
 }
+
+/* landscape */
+
 @media (orientation: landscape) {
 	#tab-container > * {
 		padding-bottom: 0;
