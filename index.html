@@ -142,28 +142,33 @@
 			}
 			songListElement.replaceChildren();
 			songList.forEach((song, index) => {
-				const songListEntry = document.createElement("div");
-				songListEntry.classList.add("song-list-entry");
-				songListEntry.textContent = song.name;
-				switch (list) {
-					case "library":
-						songListEntry.onclick = () => {
-							setAudio([song]);
-							focusTab("#player-tab");
-						}
-						break;
-					case "queue":
-						songListEntry.onclick = () => {
-							currentSong = index;
-							setSong();
-							focusTab("#player-tab");
-						}
-						break;
-					default:
-						break;
-				}
+				const songListEntry = initSongListEntry(list, song, index);
 				songListElement.appendChild(songListEntry);
 			});
+		}
+
+		function initSongListEntry(list, song, index) {
+			const songListEntry = document.createElement("div");
+			songListEntry.classList.add("song-list-entry");
+			songListEntry.textContent = song.name;
+			switch (list) {
+				case "library":
+					songListEntry.onclick = () => {
+						setAudio([song]);
+						focusTab("#player-tab");
+					};
+					break;
+				case "queue":
+					songListEntry.onclick = () => {
+						currentSong = index;
+						setSong();
+						focusTab("#player-tab");
+					};
+					break;
+				default:
+					break;
+			}
+			return songListEntry;
 		}
 
 		function setPlayingQueue() {
