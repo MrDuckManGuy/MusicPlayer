@@ -150,9 +150,18 @@ body {
 .song-list-entry {
 	padding: 0.5em;
 	overflow-wrap: anywhere;
+	cursor: pointer;
 }
 .song-list-entry.playing {
 	background-color: var(--bg2);
+}
+.song-list-entry-title {
+	list-style: none;
+}
+.song-list-entry-button {
+	padding: 0.5em;
+	border: 0;
+	background-color: var(--bg3);
 }
 @media (orientation: landscape) {
 	#tab-container > * {

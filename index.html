@@ -101,10 +101,28 @@
 		const artist = document.getElementById("artist");
 		const albumCover = document.getElementById("album-cover");
 
+		function createElement(data) {
+			const element = document.createElement(data.type);
+			data.classes.forEach(i => element.classList.add(i));
+			if (data.text) element.textContent = data.text;
+			if (data.events) {
+				for (const [event, handler] of Object.entries(data.events)) {
+					element.addEventListener(event, handler);
+				}
+			}
+			if (data.parent) data.parent.appendChild(element);
+			return element;
+		}
+
 		function loadSongLibrary(files) {
 			songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
 			// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 			initSongListEntries("library");
+		}
+
+		function enableControls() {
+			seekBar.disabled = false;
+			for (let btn of controls.children) btn.disabled = false;
 		}
 
 		function setAudio(files) {
@@ -112,8 +130,7 @@
 			initSongListEntries("queue");
 			currentSong = 0;
 			setSong();
-			seekBar.disabled = false;
-			for (let btn of controls.children) btn.disabled = false;
+			enableControls();
 		}
 
 		function setSong() {
@@ -124,6 +141,14 @@
 			jsmediatags.read(file, {
 				onSuccess: setMetadata
 			});
+		}
+
+		function enqueue(song) {
+			const index = songQueue.length;
+			songQueue.push(song);
+			const songListEntry = initSongListEntry("queue", song, index);
+			songQueueElement.appendChild(songListEntry);
+			enableControls();
 		}
 
 		function initSongListEntries(list) {
@@ -148,18 +173,59 @@
 		}
 
 		function initSongListEntry(list, song, index) {
-			const songListEntry = document.createElement("div");
-			songListEntry.classList.add("song-list-entry");
-			songListEntry.textContent = song.name;
-			switch (list) {
-				case "library":
-					songListEntry.onclick = () => {
+			const songListEntry = createElement({
+				type: "details",
+				classes: ["song-list-entry"],
+			});
+			const songListEntryTitle = createElement({
+				type: "summary",
+				classes: ["song-list-entry-title"],
+				text: song.name,
+				parent: songListEntry
+			});
+			const songListEntryPlay = createElement({
+				type: "button",
+				classes: ["song-list-entry-button"],
+				text: "Play",
+				events: {
+					click: () => {
 						setAudio([song]);
 						focusTab("#player-tab");
-					};
+						songListEntry.open = false;
+					}
+				},
+				parent: songListEntry
+			});
+			const songListEntryEnqueue = createElement({
+				type: "button",
+				classes: ["song-list-entry-button"],
+				text: "Enqueue",
+				events: {
+					click: () => {
+						enqueue(song);
+						songListEntry.open = false;
+					}
+				},
+				parent: songListEntry
+			});
+			const songListEntryPlaylist = createElement({
+				type: "button",
+				classes: ["song-list-entry-button"],
+				text: "Add to Playlist",
+				events: {
+					click: () => {
+						songListEntry.open = false;
+					}
+				},
+				parent: songListEntry
+			});
+			switch (list) {
+				case "library":
+					// songListEntry.onclick = () => {};
 					break;
 				case "queue":
-					songListEntry.onclick = () => {
+					songListEntry.onclick = (event) => {
+						event.preventDefault();
 						currentSong = index;
 						setSong();
 						focusTab("#player-tab");
