@@ -38,6 +38,7 @@ body {
 	background-color: var(--bg2);
 }
 #tab-bar > * {
+	flex: 1;
 	padding: 0.5em;
 	border: 0;
 	background-color: var(--bg3);;
@@ -150,15 +151,27 @@ body {
 .song-list-entry {
 	padding: 0.5em;
 	overflow-wrap: anywhere;
-	cursor: pointer;
 }
 .song-list-entry.playing {
 	background-color: var(--bg2);
 }
+.song-list-entry:open {
+	background-color: var(--bg2);
+}
 .song-list-entry-title {
 	list-style: none;
+	cursor: pointer;
+}
+.song-list-entry-menu {
+	display: flex;
+	flex-direction: row;
+	justify-content: start;
+	align-items: center;
+	gap: 1em;
+	margin-top: 0.5em;
 }
 .song-list-entry-button {
+	flex: 1;
 	padding: 0.5em;
 	border: 0;
 	background-color: var(--bg3);

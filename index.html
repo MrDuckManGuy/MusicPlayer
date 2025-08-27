@@ -213,6 +213,11 @@
 				text: song.name,
 				parent: songListEntry
 			});
+			const songListEntryMenu = createElement({
+				type: "div",
+				classes: ["song-list-entry-menu"],
+				parent: songListEntry
+			});
 			const songListEntryPlay = createElement({
 				type: "button",
 				classes: ["song-list-entry-button"],
@@ -223,7 +228,7 @@
 						songListEntry.open = false;
 					}
 				},
-				parent: songListEntry
+				parent: songListEntryMenu
 			});
 			const songListEntryQueue = createElement({
 				type: "button",
@@ -233,7 +238,7 @@
 						songListEntry.open = false;
 					}
 				},
-				parent: songListEntry
+				parent: songListEntryMenu
 			});
 			const songListEntryPlaylist = createElement({
 				type: "button",
@@ -244,7 +249,7 @@
 						songListEntry.open = false;
 					}
 				},
-				parent: songListEntry
+				parent: songListEntryMenu
 			});
 			switch (list) {
 				case "library":
