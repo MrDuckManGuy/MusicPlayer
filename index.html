@@ -194,6 +194,18 @@
 			const songListEntry = createElement({
 				type: "details",
 				classes: ["song-list-entry"],
+				events: {
+					toggle: (event) => {
+						const currentSelection = event.currentTarget;
+						if (currentSelection.open) {
+							document.querySelectorAll(".song-list details").forEach(i => {
+								if (i !== currentSelection) {
+									i.open = false;
+								}
+							});
+						}
+					}
+				}
 			});
 			const songListEntryTitle = createElement({
 				type: "summary",
