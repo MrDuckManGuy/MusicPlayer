@@ -120,9 +120,9 @@
 			initSongListEntries("library");
 		}
 
-		function enableControls() {
-			seekBar.disabled = false;
-			for (let btn of controls.children) btn.disabled = false;
+		function enableControls(state) {
+			seekBar.disabled = !state;
+			for (let btn of controls.children) btn.disabled = !state;
 		}
 
 		function setAudio(files) {
@@ -130,7 +130,13 @@
 			initSongListEntries("queue");
 			currentSong = 0;
 			setSong();
-			enableControls();
+			enableControls(true);
+		}
+
+		function resetAudio() {
+			audioPlayer.src = "";
+			audioPlayer.load();
+			enableControls(false);
 		}
 
 		function setSong() {
@@ -144,11 +150,23 @@
 		}
 
 		function enqueue(song) {
-			const index = songQueue.length;
 			songQueue.push(song);
-			const songListEntry = initSongListEntry("queue", song, index);
+			const songListEntry = initSongListEntry("queue", song);
 			songQueueElement.appendChild(songListEntry);
-			enableControls();
+			enableControls(true);
+		}
+
+		function dequeue(index) {
+			songQueue.splice(index, 1);
+			Array.from(songQueueElement.children)[index].remove();
+			if (songQueue.length === 0) {
+				resetAudio();
+			} else if (index === currentSong) {
+				currentSong %= songQueue.length;
+				setSong(); // set song after target as playing
+			} else if (index < currentSong) {
+				currentSong--; // fix index after remove preceding song
+			}
 		}
 
 		function initSongListEntries(list) {
@@ -166,13 +184,13 @@
 					break;
 			}
 			songListElement.replaceChildren();
-			songList.forEach((song, index) => {
-				const songListEntry = initSongListEntry(list, song, index);
+			songList.forEach((song) => {
+				const songListEntry = initSongListEntry(list, song);
 				songListElement.appendChild(songListEntry);
 			});
 		}
 
-		function initSongListEntry(list, song, index) {
+		function initSongListEntry(list, song) {
 			const songListEntry = createElement({
 				type: "details",
 				classes: ["song-list-entry"],
@@ -189,20 +207,17 @@
 				text: "Play",
 				events: {
 					click: () => {
-						setAudio([song]);
 						focusTab("#player-tab");
 						songListEntry.open = false;
 					}
 				},
 				parent: songListEntry
 			});
-			const songListEntryEnqueue = createElement({
+			const songListEntryQueue = createElement({
 				type: "button",
 				classes: ["song-list-entry-button"],
-				text: "Enqueue",
 				events: {
 					click: () => {
-						enqueue(song);
 						songListEntry.open = false;
 					}
 				},
@@ -221,15 +236,25 @@
 			});
 			switch (list) {
 				case "library":
-					// songListEntry.onclick = () => {};
+					songListEntryPlay.addEventListener("click", () => {
+						setAudio([song]);
+					});
+					songListEntryQueue.textContent = "Enqueue";
+					songListEntryQueue.addEventListener("click", () => {
+						enqueue(song);
+					});
 					break;
 				case "queue":
-					songListEntry.onclick = (event) => {
-						event.preventDefault();
+					songListEntryPlay.addEventListener("click", () => {
+						const index = songQueue.indexOf(song);
 						currentSong = index;
 						setSong();
-						focusTab("#player-tab");
-					};
+					});
+					songListEntryQueue.textContent = "Dequeue";
+					songListEntryQueue.addEventListener("click", () => {
+						const index = songQueue.indexOf(song);
+						dequeue(index);
+					});
 					break;
 				default:
 					break;
