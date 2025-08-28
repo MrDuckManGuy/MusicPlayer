@@ -18,8 +18,10 @@ const artist = document.getElementById("artist");
 const albumCover = document.getElementById("album-cover");
 
 function loadSongLibrary(files) {
+	resetSongList("library");
 	songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
 	songLibrary = songLibrary.map(file => ({ file: file }));
+	songLibrary.forEach(song => initSongListEntry("library", song));
 	/*
 	songLibrary.forEach((song, index) => {
 		jsmediatags.read(song, {
@@ -35,12 +37,10 @@ function loadSongLibrary(files) {
 	});
 	*/
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
-	initSongListEntries("library");
 }
 
 function loadSongQueue(songs) {
-	songQueue = [];
-	songQueueElement.replaceChildren();
+	resetSongList("queue");
 	songs.forEach(enqueue);
 	currentSong = 0;
 	loadSong();
@@ -67,8 +67,7 @@ function resetAudioPlayer() {
 function enqueue(song) {
 	song = Object.assign({ queueId: generateQueueId() }, song);
 	songQueue.push(song);
-	const songListEntry = initSongListEntry("queue", song);
-	songQueueElement.appendChild(songListEntry);
+	initSongListEntry("queue", song);
 }
 
 function dequeue(index) {
@@ -96,25 +95,19 @@ function generateQueueId() {
 	}
 }
 
-function initSongListEntries(list) {
-	let songList, songListElement;
+function resetSongList(list) {
 	switch (list) {
 		case "library":
-			songList = songLibrary;
-			songListElement = songLibraryElement;
+			songLibrary = [];
+			songLibraryElement.replaceChildren();
 			break;
 		case "queue":
-			songList = songQueue;
-			songListElement = songQueueElement;
+			songQueue = [];
+			songQueueElement.replaceChildren();
 			break;
 		default:
 			break;
 	}
-	songListElement.replaceChildren();
-	songList.forEach((song) => {
-		const songListEntry = initSongListEntry(list, song);
-		songListElement.appendChild(songListEntry);
-	});
 }
 
 function initSongListEntry(list, song) {
@@ -180,6 +173,7 @@ function initSongListEntry(list, song) {
 	});
 	switch (list) {
 		case "library":
+			songLibraryElement.appendChild(songListEntry);
 			songListEntryPlay.addEventListener("click", () => {
 				loadSongQueue([song]);
 			});
@@ -189,6 +183,7 @@ function initSongListEntry(list, song) {
 			});
 			break;
 		case "queue":
+			songQueueElement.appendChild(songListEntry);
 			songListEntryPlay.addEventListener("click", () => {
 				const targetId = song.queueId;
 				const index = songQueue.findIndex(i => i.queueId === targetId);
@@ -205,7 +200,6 @@ function initSongListEntry(list, song) {
 		default:
 			break;
 	}
-	return songListEntry;
 }
 
 // UI
