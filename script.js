@@ -39,8 +39,9 @@ function loadSongLibrary(files) {
 }
 
 function loadSongQueue(songs) {
-	songQueue = songs;
-	initSongListEntries("queue");
+	songQueue = [];
+	songQueueElement.replaceChildren();
+	songs.forEach(enqueue);
 	currentSong = 0;
 	loadSong();
 }
@@ -64,6 +65,7 @@ function resetAudioPlayer() {
 }
 
 function enqueue(song) {
+	song = Object.assign({ queueId: generateQueueId() }, song);
 	songQueue.push(song);
 	const songListEntry = initSongListEntry("queue", song);
 	songQueueElement.appendChild(songListEntry);
@@ -79,6 +81,18 @@ function dequeue(index) {
 		loadSong(); // load after target
 	} else if (index < currentSong) {
 		currentSong--; // fix index after remove preceding song
+	}
+}
+
+function generateQueueId() {
+	try {
+		return crypto.randomUUID();
+	} catch (error) {
+		const base = 36;
+		const idLength = 10;
+		return Math.floor(Math.random() * Math.pow(base, idLength))
+			.toString(base)
+			.padStart(idLength, 0);
 	}
 }
 
@@ -176,13 +190,15 @@ function initSongListEntry(list, song) {
 			break;
 		case "queue":
 			songListEntryPlay.addEventListener("click", () => {
-				const index = songQueue.indexOf(song);
+				const targetId = song.queueId;
+				const index = songQueue.findIndex(i => i.queueId === targetId);
 				currentSong = index;
 				loadSong();
 			});
 			songListEntryQueue.textContent = "Dequeue";
 			songListEntryQueue.addEventListener("click", () => {
-				const index = songQueue.indexOf(song);
+				const targetId = song.queueId;
+				const index = songQueue.findIndex(i => i.queueId === targetId);
 				dequeue(index);
 			});
 			break;
