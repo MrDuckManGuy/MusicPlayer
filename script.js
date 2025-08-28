@@ -21,21 +21,18 @@ function loadSongLibrary(files) {
 	resetSongList("library");
 	songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
 	songLibrary = songLibrary.map(file => ({ file: file }));
-	songLibrary.forEach(song => initSongListEntry("library", song));
-	/*
+	let readCounter = 0;
 	songLibrary.forEach((song, index) => {
-		jsmediatags.read(song, {
+		jsmediatags.read(song.file, {
 			onSuccess: (tag) => {
 				const metadata = getMetadata(tag);
-				songLibrary[index] = { file: song, ...metadata };
-				if (index === songLibrary.length - 1) {
-					console.log(songLibrary);
-					initSongListEntries("library");
+				Object.assign(song, metadata);
+				if (++readCounter === songLibrary.length) {
+					songLibrary.forEach(i => initSongListEntry("library", i));
 				}
 			}
 		});
 	});
-	*/
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 }
 
@@ -130,7 +127,7 @@ function initSongListEntry(list, song) {
 	const songListEntryTitle = createElement({
 		type: "summary",
 		classes: ["song-list-entry-title"],
-		text: song.file.name,
+		text: song.title,
 		parent: songListEntry
 	});
 	const songListEntryMenu = createElement({

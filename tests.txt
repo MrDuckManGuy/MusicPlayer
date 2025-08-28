@@ -1,13 +1,15 @@
 library
 	load directory
 	play from library
+		without existing queue
+		with existing queue
 	enqueue from library
 queue
 	play from queue
 	dequeue from queue
 		dequeue with one song in queue
-		dequeue last song in queue
 		dequeue current song
+		dequeue when current is last song in queue
 		dequeue song preceding current
 		duplicates
 			dequeue duplicate preceding current
