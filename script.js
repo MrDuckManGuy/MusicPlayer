@@ -19,19 +19,34 @@ const albumCover = document.getElementById("album-cover");
 
 function loadSongLibrary(files) {
 	songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
+	songLibrary = songLibrary.map(file => ({ file: file }));
+	/*
+	songLibrary.forEach((song, index) => {
+		jsmediatags.read(song, {
+			onSuccess: (tag) => {
+				const metadata = getMetadata(tag);
+				songLibrary[index] = { file: song, ...metadata };
+				if (index === songLibrary.length - 1) {
+					console.log(songLibrary);
+					initSongListEntries("library");
+				}
+			}
+		});
+	});
+	*/
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 	initSongListEntries("library");
 }
 
-function loadSongQueue(files) {
-	songQueue = Array.from(files);
+function loadSongQueue(songs) {
+	songQueue = songs;
 	initSongListEntries("queue");
 	currentSong = 0;
 	loadSong();
 }
 
 function loadSong() {
-	const file = songQueue[currentSong];
+	const file = songQueue[currentSong].file;
 	audioPlayer.src = URL.createObjectURL(file);
 	playLoadedSong();
 	jsmediatags.read(file, {
@@ -108,7 +123,7 @@ function initSongListEntry(list, song) {
 	const songListEntryTitle = createElement({
 		type: "summary",
 		classes: ["song-list-entry-title"],
-		text: song.name,
+		text: song.file.name,
 		parent: songListEntry
 	});
 	const songListEntryMenu = createElement({
@@ -297,6 +312,15 @@ if ("serviceWorker" in navigator) {
 }
 
 // metadata
+
+function getMetadata(tag) {
+	const tags = tag.tags;
+	return {
+		title: tags.title,
+		album: tags.album,
+		artist: tags.artist
+	};
+}
 
 function setMetadata(tag) {
 	const tags = tag.tags;
