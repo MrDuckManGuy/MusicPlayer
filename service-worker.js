@@ -2,16 +2,17 @@ const cacheName = "cache-v1";
 const cacheFiles = [
 	"/",
 	"/index.html",
+	"/script.js",
 	"/style.css",
 	"/manifest.json",
 	"/media/apple-touch-icon.png",
 	"/media/icon-192.png",
 	"/media/icon-512.png",
+	"/media/image-not-found.png"
 	"/media/pause.png",
 	"/media/play.png",
 	"/media/skipNext.png",
 	"/media/skipPrev.png",
-	"/media/image-not-found.png"
 ];
 
 self.addEventListener("install", event => {

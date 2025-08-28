@@ -1,0 +1,327 @@
+const jsmediatags = window.jsmediatags;
+
+let currentSong;
+let songLibrary = [];
+let songQueue = [];
+
+const audioPlayer = document.getElementById("audioPlayer");
+const seekBar = document.getElementById("seekBar");
+const controls = document.getElementById("controls");
+const songLibraryElement = document.querySelector("#song-library");
+const songQueueElement = document.getElementById("song-queue");
+const playerTab = document.querySelector("#playerTab");
+const controlPanel = document.getElementById("control-panel");
+const directorySelect = document.querySelector("#directory-select");
+
+const title = document.getElementById("title");
+const artist = document.getElementById("artist");
+const albumCover = document.getElementById("album-cover");
+
+function createElement(data) {
+	const element = document.createElement(data.type);
+	data.classes.forEach(i => element.classList.add(i));
+	if (data.text) element.textContent = data.text;
+	if (data.events) {
+		for (const [event, handler] of Object.entries(data.events)) {
+			element.addEventListener(event, handler);
+		}
+	}
+	if (data.parent) data.parent.appendChild(element);
+	return element;
+}
+
+function loadSongLibrary(files) {
+	songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
+	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
+	initSongListEntries("library");
+}
+
+function enableControls(state) {
+	seekBar.disabled = !state;
+	for (let btn of controls.children) btn.disabled = !state;
+}
+
+function setAudio(files) {
+	songQueue = Array.from(files);
+	initSongListEntries("queue");
+	currentSong = 0;
+	setSong();
+	enableControls(true);
+}
+
+function resetAudio() {
+	audioPlayer.src = "";
+	audioPlayer.load();
+	enableControls(false);
+}
+
+function setSong() {
+	setPlayingQueue();
+	const file = songQueue[currentSong];
+	audioPlayer.src = URL.createObjectURL(file);
+	resume();
+	jsmediatags.read(file, {
+		onSuccess: setMetadata
+	});
+}
+
+function enqueue(song) {
+	songQueue.push(song);
+	const songListEntry = initSongListEntry("queue", song);
+	songQueueElement.appendChild(songListEntry);
+	enableControls(true);
+}
+
+function dequeue(index) {
+	songQueue.splice(index, 1);
+	Array.from(songQueueElement.children)[index].remove();
+	if (songQueue.length === 0) {
+		resetAudio();
+	} else if (index === currentSong) {
+		currentSong %= songQueue.length;
+		setSong(); // set song after target as playing
+	} else if (index < currentSong) {
+		currentSong--; // fix index after remove preceding song
+	}
+}
+
+function initSongListEntries(list) {
+	let songList, songListElement;
+	switch (list) {
+		case "library":
+			songList = songLibrary;
+			songListElement = songLibraryElement;
+			break;
+		case "queue":
+			songList = songQueue;
+			songListElement = songQueueElement;
+			break;
+		default:
+			break;
+	}
+	songListElement.replaceChildren();
+	songList.forEach((song) => {
+		const songListEntry = initSongListEntry(list, song);
+		songListElement.appendChild(songListEntry);
+	});
+}
+
+function initSongListEntry(list, song) {
+	const songListEntry = createElement({
+		type: "details",
+		classes: ["song-list-entry"],
+		events: {
+			toggle: (event) => {
+				const currentSelection = event.currentTarget;
+				if (currentSelection.open) {
+					document.querySelectorAll(".song-list details").forEach(i => {
+						if (i !== currentSelection) {
+							i.open = false;
+						}
+					});
+				}
+			}
+		}
+	});
+	const songListEntryTitle = createElement({
+		type: "summary",
+		classes: ["song-list-entry-title"],
+		text: song.name,
+		parent: songListEntry
+	});
+	const songListEntryMenu = createElement({
+		type: "div",
+		classes: ["song-list-entry-menu"],
+		parent: songListEntry
+	});
+	const songListEntryPlay = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Play",
+		events: {
+			click: () => {
+				focusTab("#player-tab");
+				songListEntry.open = false;
+			}
+		},
+		parent: songListEntryMenu
+	});
+	const songListEntryQueue = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		events: {
+			click: () => {
+				songListEntry.open = false;
+			}
+		},
+		parent: songListEntryMenu
+	});
+	const songListEntryPlaylist = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Add to Playlist",
+		events: {
+			click: () => {
+				songListEntry.open = false;
+			}
+		},
+		parent: songListEntryMenu
+	});
+	switch (list) {
+		case "library":
+			songListEntryPlay.addEventListener("click", () => {
+				setAudio([song]);
+			});
+			songListEntryQueue.textContent = "Enqueue";
+			songListEntryQueue.addEventListener("click", () => {
+				enqueue(song);
+			});
+			break;
+		case "queue":
+			songListEntryPlay.addEventListener("click", () => {
+				const index = songQueue.indexOf(song);
+				currentSong = index;
+				setSong();
+			});
+			songListEntryQueue.textContent = "Dequeue";
+			songListEntryQueue.addEventListener("click", () => {
+				const index = songQueue.indexOf(song);
+				dequeue(index);
+			});
+			break;
+		default:
+			break;
+	}
+	return songListEntry;
+}
+
+function setPlayingQueue() {
+	Array.from(songQueueElement.children).forEach(song => {
+		song.classList.remove("playing");
+	});
+	songQueueElement.children[currentSong].classList.add("playing");
+}
+
+function focusTab(tabID) {
+	document.querySelector(tabID).scrollIntoView({
+		behavior: "smooth",
+		block: "start"
+	});
+}
+
+// controls
+
+function resume() {
+	audioPlayer.play();
+	document.querySelector("#playback-icon").src = "media/pause.png";
+}
+
+function pause() {
+	audioPlayer.pause();
+	document.querySelector("#playback-icon").src = "media/play.png";
+}
+
+function playback() {
+	if (audioPlayer.paused) {
+		resume();
+	} else {
+		pause();
+	}
+}
+
+function prev() {
+	if (audioPlayer.currentTime > 3) {
+		audioPlayer.currentTime = 0;
+		return;
+	}
+	updateSongIndex(-1);
+	setSong();
+}
+
+function next() {
+	updateSongIndex(1);
+	setSong();
+}
+
+function updateSongIndex(adv) {
+	currentSong += adv;
+	currentSong %= songQueue.length;
+	if (currentSong < 0) {
+		currentSong = songQueue.length + currentSong;
+	}
+}
+
+function seek(event) {
+	const pos = event.target.value / 100 * audioPlayer.duration;
+	audioPlayer.fastSeek(pos);
+}
+
+// events
+
+setInterval(() => {
+	const pos = audioPlayer.currentTime / audioPlayer.duration * 100;
+	seekBar.value = pos;
+}, 500);
+
+audioPlayer.addEventListener("ended", () => {
+	next();
+});
+
+directorySelect.addEventListener("change", event => {
+	loadSongLibrary(event.target.files);
+});
+
+document.querySelectorAll("a").forEach(i => {
+	i.addEventListener("click", event => {
+		event.preventDefault();
+		const id = (new URL(i.href)).hash;
+		document.querySelector(id).scrollIntoView({
+			behavior: "smooth",
+			block: "start"
+		});
+	});
+});
+
+// service worker
+
+if ("serviceWorker" in navigator) {
+	window.addEventListener("load", async () => {
+		try {
+			await navigator.serviceWorker.register("service-worker.js");
+		} catch (error) {
+			console.error("service worker registration failed:", error);
+		}
+	});
+}
+
+// metadata
+
+function setMetadata(tag) {
+	const tags = tag.tags;
+	title.textContent = tags.title ? tags.title : "-";
+	artist.textContent = tags.artist ? tags.artist : "-";
+	albumCover.src = decodeImg(tags.picture);
+	if ('mediaSession' in navigator) {
+		navigator.mediaSession.metadata = new MediaMetadata({
+			title: tags.title,
+			artist: tags.artist,
+			artwork: [{ src: albumCover.src }]
+		});
+		navigator.mediaSession.setActionHandler("play", () => resume());
+		navigator.mediaSession.setActionHandler("pause", () => pause());
+		navigator.mediaSession.setActionHandler("previoustrack", () => prev());
+		navigator.mediaSession.setActionHandler("nexttrack", () => next());
+	}
+}
+
+function decodeImg(imgData) {
+	if (!imgData) {
+		return "media/image-not-found.png";
+	}
+	const { data, format } = imgData;
+	let base64String = "";
+	for (const i of data) {
+		base64String += String.fromCharCode(i);
+	}
+	return `data:${format};base64,${window.btoa(base64String)}`;
+}
