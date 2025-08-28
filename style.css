@@ -101,6 +101,19 @@ button {
 	background-color: var(--bg3);
 	cursor: pointer;
 }
+.searchbar {
+	border: 0;
+	padding: 0.69em;
+	width: 100%;
+	border-radius: 1em;
+	background-color: var(--bg2);
+	font-size: inherit;
+}
+.searchbar-container {
+	width: 100%;
+	padding-inline: 1.5em;
+	margin-bottom: 1em;
+}
 
 /* player */
 

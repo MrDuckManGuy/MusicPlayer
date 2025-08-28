@@ -29,6 +29,9 @@
 			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
 			<div id="all-songs-page" class="library-page">
 				<h2>All Songs</h2>
+				<div class="searchbar-container">
+					<input id="all-song-searchbar" class="searchbar" type="text" />
+				</div>
 				<div id="song-library" class="song-list"></div>
 			</div>
 			<div id="artists-page" class="library-page">
@@ -405,7 +408,7 @@
 
 		function decodeImg(imgData) {
 			if (!imgData) {
-				return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+				return "media/image-not-found.png";
 			}
 			const { data, format } = imgData;
 			let base64String = "";

@@ -10,7 +10,8 @@ const cacheFiles = [
 	"/media/pause.png",
 	"/media/play.png",
 	"/media/skipNext.png",
-	"/media/skipPrev.png"
+	"/media/skipPrev.png",
+	"/media/image-not-found.png"
 ];
 
 self.addEventListener("install", event => {
