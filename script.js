@@ -17,69 +17,51 @@ const title = document.getElementById("title");
 const artist = document.getElementById("artist");
 const albumCover = document.getElementById("album-cover");
 
-function createElement(data) {
-	const element = document.createElement(data.type);
-	data.classes.forEach(i => element.classList.add(i));
-	if (data.text) element.textContent = data.text;
-	if (data.events) {
-		for (const [event, handler] of Object.entries(data.events)) {
-			element.addEventListener(event, handler);
-		}
-	}
-	if (data.parent) data.parent.appendChild(element);
-	return element;
-}
-
 function loadSongLibrary(files) {
 	songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 	initSongListEntries("library");
 }
 
-function enableControls(state) {
-	seekBar.disabled = !state;
-	for (let btn of controls.children) btn.disabled = !state;
-}
-
-function setAudio(files) {
+function loadSongQueue(files) {
 	songQueue = Array.from(files);
 	initSongListEntries("queue");
 	currentSong = 0;
-	setSong();
-	enableControls(true);
+	loadSong();
 }
 
-function resetAudio() {
-	audioPlayer.src = "";
-	audioPlayer.load();
-	enableControls(false);
-}
-
-function setSong() {
-	setPlayingQueue();
+function loadSong() {
 	const file = songQueue[currentSong];
 	audioPlayer.src = URL.createObjectURL(file);
-	resume();
+	playLoadedSong();
 	jsmediatags.read(file, {
 		onSuccess: setMetadata
 	});
+	enableControls(true);
+	setPlayingQueue();
+}
+
+function resetAudioPlayer() {
+	audioPlayer.src = "";
+	audioPlayer.load();
+	resetMetadata();
+	enableControls(false);
 }
 
 function enqueue(song) {
 	songQueue.push(song);
 	const songListEntry = initSongListEntry("queue", song);
 	songQueueElement.appendChild(songListEntry);
-	enableControls(true);
 }
 
 function dequeue(index) {
 	songQueue.splice(index, 1);
 	Array.from(songQueueElement.children)[index].remove();
 	if (songQueue.length === 0) {
-		resetAudio();
+		resetAudioPlayer();
 	} else if (index === currentSong) {
 		currentSong %= songQueue.length;
-		setSong(); // set song after target as playing
+		loadSong(); // load after target
 	} else if (index < currentSong) {
 		currentSong--; // fix index after remove preceding song
 	}
@@ -170,7 +152,7 @@ function initSongListEntry(list, song) {
 	switch (list) {
 		case "library":
 			songListEntryPlay.addEventListener("click", () => {
-				setAudio([song]);
+				loadSongQueue([song]);
 			});
 			songListEntryQueue.textContent = "Enqueue";
 			songListEntryQueue.addEventListener("click", () => {
@@ -181,7 +163,7 @@ function initSongListEntry(list, song) {
 			songListEntryPlay.addEventListener("click", () => {
 				const index = songQueue.indexOf(song);
 				currentSong = index;
-				setSong();
+				loadSong();
 			});
 			songListEntryQueue.textContent = "Dequeue";
 			songListEntryQueue.addEventListener("click", () => {
@@ -193,6 +175,26 @@ function initSongListEntry(list, song) {
 			break;
 	}
 	return songListEntry;
+}
+
+// UI
+
+function createElement(data) {
+	const element = document.createElement(data.type);
+	data.classes.forEach(i => element.classList.add(i));
+	if (data.text) element.textContent = data.text;
+	if (data.events) {
+		for (const [event, handler] of Object.entries(data.events)) {
+			element.addEventListener(event, handler);
+		}
+	}
+	if (data.parent) data.parent.appendChild(element);
+	return element;
+}
+
+function enableControls(state) {
+	seekBar.disabled = !state;
+	for (let btn of controls.children) btn.disabled = !state;
 }
 
 function setPlayingQueue() {
@@ -211,36 +213,36 @@ function focusTab(tabID) {
 
 // controls
 
-function resume() {
+function playLoadedSong() {
 	audioPlayer.play();
 	document.querySelector("#playback-icon").src = "media/pause.png";
 }
 
-function pause() {
+function pauseLoadedSong() {
 	audioPlayer.pause();
 	document.querySelector("#playback-icon").src = "media/play.png";
 }
 
-function playback() {
+function togglePlayback() {
 	if (audioPlayer.paused) {
-		resume();
+		playLoadedSong();
 	} else {
-		pause();
+		pauseLoadedSong();
 	}
 }
 
-function prev() {
+function prevSong() {
 	if (audioPlayer.currentTime > 3) {
 		audioPlayer.currentTime = 0;
 		return;
 	}
 	updateSongIndex(-1);
-	setSong();
+	loadSong();
 }
 
-function next() {
+function nextSong() {
 	updateSongIndex(1);
-	setSong();
+	loadSong();
 }
 
 function updateSongIndex(adv) {
@@ -264,7 +266,7 @@ setInterval(() => {
 }, 500);
 
 audioPlayer.addEventListener("ended", () => {
-	next();
+	nextSong();
 });
 
 directorySelect.addEventListener("change", event => {
@@ -307,11 +309,17 @@ function setMetadata(tag) {
 			artist: tags.artist,
 			artwork: [{ src: albumCover.src }]
 		});
-		navigator.mediaSession.setActionHandler("play", () => resume());
-		navigator.mediaSession.setActionHandler("pause", () => pause());
-		navigator.mediaSession.setActionHandler("previoustrack", () => prev());
-		navigator.mediaSession.setActionHandler("nexttrack", () => next());
+		navigator.mediaSession.setActionHandler("play", () => playLoadedSong());
+		navigator.mediaSession.setActionHandler("pause", () => pauseLoadedSong());
+		navigator.mediaSession.setActionHandler("previoustrack", () => prevSong());
+		navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
 	}
+}
+
+function resetMetadata() {
+	title.textContent = "-";
+	artist.textContent = "-";
+	albumCover.src = "media/image-not-found.png";
 }
 
 function decodeImg(imgData) {

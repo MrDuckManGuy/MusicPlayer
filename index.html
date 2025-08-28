@@ -43,6 +43,7 @@
 		</div>
 		<div id="player-tab" class="tab">
 			<img id="album-cover" />
+			<audio id="audioPlayer"></audio>
 			<div id="control-panel">
 				<div id="metadata">
 					<p id="title">-</p>
@@ -58,7 +59,6 @@
 					/>
 				</div>
 				-->
-				<audio id="audioPlayer"></audio>
 				<input
 					id="seekBar"
 					type="range"
@@ -66,13 +66,13 @@
 					disabled
 				/>
 				<div id="controls">
-					<button class="control-btn" onclick="prev()" disabled>
+					<button class="control-btn" onclick="prevSong()" disabled>
 						<img id="prev-icon" class="control-icon" src="media/skipPrev.png">
 					</button>
-					<button class="control-btn" onclick="playback()" disabled>
+					<button class="control-btn" onclick="togglePlayback()" disabled>
 						<img id="playback-icon" class="control-icon" src="media/play.png">
 					</button>
-					<button class="control-btn" onclick="next()" disabled>
+					<button class="control-btn" onclick="nextSong()" disabled>
 						<img id="next-icon" class="control-icon" src="media/skipNext.png">
 					</button>
 				</div>
