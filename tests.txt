@@ -1,0 +1,18 @@
+library
+	load directory
+	play from library
+	enqueue from library
+queue
+	play from queue
+	dequeue from queue
+		dequeue with one song in queue
+		dequeue last song in queue
+		dequeue current song
+		dequeue song preceding current
+		duplicates
+			dequeue duplicate preceding current
+			dequeue current when preceded by duplicate
+player
+	next song
+	previous song
+	toggle playback
