@@ -4,25 +4,28 @@ let currentSong;
 let songLibrary = [];
 let songQueue = [];
 
-const audioPlayer = document.getElementById("audioPlayer");
-const seekBar = document.getElementById("seekBar");
-const controls = document.getElementById("controls");
-const songLibraryElement = document.querySelector("#song-library");
-const songQueueElement = document.getElementById("song-queue");
-const playerTab = document.querySelector("#playerTab");
-const controlPanel = document.getElementById("control-panel");
-const directorySelect = document.querySelector("#directory-select");
+const songQueueElement = document.querySelector("#song-queue");
 
-const title = document.getElementById("title");
-const artist = document.getElementById("artist");
-const albumCover = document.getElementById("album-cover");
+const songLibraryElement = document.querySelector("#song-library");
+const directorySelect = document.querySelector("#directory-select");
+const allSongSearchbar = document.querySelector("#all-song-searchbar");
+
+const audioPlayer = document.querySelector("#audioPlayer");
+const playerTab = document.querySelector("#playerTab");
+const controlPanel = document.querySelector("#control-panel");
+const controls = document.querySelector("#controls");
+const seekBar = document.querySelector("#seekBar");
+const title = document.querySelector("#title");
+const artist = document.querySelector("#artist");
+const albumCover = document.querySelector("#album-cover");
 
 function loadSongLibrary(files) {
 	resetSongList("library");
-	songLibrary = Array.from(files).sort((a, b) => (a.name).localeCompare((b.name)));
-	songLibrary = songLibrary.map(file => ({ file: file }));
+	songLibrary = Array.from(files)
+		.sort((a, b) => (a.name).localeCompare((b.name)))
+		.map(file => ({ file: file }));
 	let readCounter = 0;
-	songLibrary.forEach((song, index) => {
+	songLibrary.forEach(song => {
 		jsmediatags.read(song.file, {
 			onSuccess: (tag) => {
 				const metadata = getMetadata(tag);
@@ -105,6 +108,14 @@ function resetSongList(list) {
 		default:
 			break;
 	}
+}
+
+function searchSongLibrary(searchString) {
+	const filtered = Array.from(songLibraryElement.children)
+		.forEach(i => i.style.display = i.querySelector("summary")
+			.textContent
+			.toLowerCase()
+			.includes(searchString.toLowerCase()) ? "" : "none");
 }
 
 function initSongListEntry(list, song) {
@@ -304,6 +315,11 @@ document.querySelectorAll("a").forEach(i => {
 			block: "start"
 		});
 	});
+});
+
+allSongSearchbar.addEventListener("keyup", event => {
+	const searchString = allSongSearchbar.value;
+	searchSongLibrary(searchString);
 });
 
 // service worker
