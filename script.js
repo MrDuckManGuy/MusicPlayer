@@ -22,6 +22,7 @@ const albumCover = document.querySelector("#album-cover");
 function loadSongLibrary(files) {
 	resetSongList("library");
 	songLibrary = Array.from(files)
+		.filter(file => file.type.startsWith("audio/"))
 		.sort((a, b) => (a.name).localeCompare((b.name)))
 		.map(file => ({ file: file }));
 	let readCounter = 0;
@@ -33,6 +34,9 @@ function loadSongLibrary(files) {
 				if (++readCounter === songLibrary.length) {
 					songLibrary.forEach(i => initSongListEntry("library", i));
 				}
+			},
+			onError: (error) => {
+				console.error("jsmediatags error: " + JSON.stringify(error));
 			}
 		});
 	});
