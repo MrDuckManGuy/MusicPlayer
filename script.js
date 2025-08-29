@@ -9,6 +9,7 @@ const songQueueElement = document.querySelector("#song-queue");
 const songLibraryElement = document.querySelector("#song-library");
 const directorySelect = document.querySelector("#directory-select");
 const allSongSearchbar = document.querySelector("#all-song-searchbar");
+const artistsLibraryElement = document.querySelector("#artists-library");
 
 const audioPlayer = document.querySelector("#audioPlayer");
 const playerTab = document.querySelector("#playerTab");
@@ -115,7 +116,7 @@ function resetSongList(list) {
 }
 
 function searchSongLibrary(searchString) {
-	const filtered = Array.from(songLibraryElement.children)
+	Array.from(songLibraryElement.children)
 		.forEach(i => i.style.display = i.querySelector("summary")
 			.textContent
 			.toLowerCase()
@@ -142,8 +143,14 @@ function initSongListEntry(list, song) {
 	const songListEntryTitle = createElement({
 		type: "summary",
 		classes: ["song-list-entry-title"],
-		text: song.title,
+		text: song.title ? song.title : song.file.name,
 		parent: songListEntry
+	});
+	const songListEntryArtist = createElement({
+		type: "div",
+		classes: ["song-library-entry-artist"],
+		text: song.artist ? song.artist : "unknown",
+		parent: songListEntryTitle
 	});
 	const songListEntryMenu = createElement({
 		type: "div",

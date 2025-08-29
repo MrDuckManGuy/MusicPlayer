@@ -212,6 +212,10 @@ button {
 	border: 0;
 	background-color: var(--bg3);
 }
+.song-library-entry-artist {
+	color: #888;
+	font-size: small;
+}
 
 /* landscape */
 
