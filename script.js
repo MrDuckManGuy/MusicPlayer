@@ -139,7 +139,7 @@ function initSongListEntry(list, song) {
 			toggle: (event) => {
 				const currentSelection = event.currentTarget;
 				if (currentSelection.open) {
-					document.querySelectorAll(".song-list details").forEach(i => {
+					Array.from(currentSelection.parentNode.children).forEach(i => {
 						if (i !== currentSelection) {
 							i.open = false;
 						}
@@ -241,21 +241,22 @@ function initArtistEntry(artist) {
 			toggle: (event) => {
 				const currentSelection = event.currentTarget;
 				if (currentSelection.open) {
-					document.querySelectorAll("#artists-library > details").forEach(i => {
+					Array.from(artistsLibraryElement.children).forEach(i => {
 						if (i !== currentSelection) {
 							i.open = false;
 							i.style.display = "none";
 						}
 					});
 				} else {
-					document.querySelectorAll("#artists-library > details").forEach(i => {
+					Array.from(artistsLibraryElement.children).forEach(i => {
 						if (i !== currentSelection) {
 							i.style.display = "";
 						}
 					});
 				}
 			}
-		}
+		},
+		parent: artistsLibraryElement
 	});
 	const artistEntryTitle = createElement({
 		type: "summary",
@@ -263,7 +264,6 @@ function initArtistEntry(artist) {
 		text: artist ? artist : "unknown",
 		parent: artistEntry
 	});
-	artistsLibraryElement.appendChild(artistEntry);
 }
 
 // UI
