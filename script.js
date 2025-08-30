@@ -158,7 +158,7 @@ function initSongListEntry(list, song) {
 		text: song.title ? song.title : song.file.name,
 		parent: songListEntry
 	});
-	const songListEntryArtist = createElement({
+	const songListEntrySecondary = createElement({
 		type: "div",
 		classes: ["song-list-entry-secondary"],
 		text: song.artist ? song.artist : "unknown",
@@ -212,6 +212,7 @@ function initSongListEntry(list, song) {
 			songQueueElement.appendChild(songListEntry);
 			break;
 		case "artists":
+			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
 			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			Array.from(artistsLibraryElement.children)
 				.find(i => i.querySelector("summary").textContent === song.artist)
