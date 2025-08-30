@@ -124,12 +124,19 @@ function resetSongList(list) {
 	}
 }
 
-function searchLibraryPage(searchString, libraryElement) {
-	Array.from(libraryElement.children)
-		.forEach(i => i.style.display = i.querySelector(".song-list-entry-primary")
+function getSearchMatches(searchString, libraryElement) {
+	return Array.from(libraryElement.children)
+		.filter(i => i.querySelector(".song-list-entry-primary")
 			.textContent
 			.toLowerCase()
-			.includes(searchString.toLowerCase()) ? "" : "none");
+			.includes(searchString.toLowerCase()));
+}
+
+function searchLibraryPage(searchString, libraryElement) {
+	closeListEntries();
+	const matches = getSearchMatches(searchString, libraryElement);
+	Array.from(libraryElement.children)
+		.forEach(i => i.style.display = matches.includes(i) ? "" : "none");
 }
 
 function initSongListEntry(list, song) {
@@ -217,7 +224,7 @@ function initSongListEntry(list, song) {
 function initArtistEntry(artist) {
 	const artistEntry = createElement({
 		type: "details",
-		classes: ["song-list-entry"],
+		classes: ["song-list-entry", "artist-entry"],
 		events: {
 			toggle: (event) => {
 				const currentSelection = event.currentTarget;
@@ -225,7 +232,6 @@ function initArtistEntry(artist) {
 					closeListEntries(currentSelection, "hide");
 				} else {
 					closeListEntries(currentSelection, "unhide");
-					searchLibraryPage(artistsSearchbar.value, artistsLibraryElement)
 				}
 			}
 		},
@@ -280,7 +286,20 @@ function initQueueEntryMenuButtons(song, playButton, queueButton) {
 }
 
 function closeListEntries(currentSelection, displayState) {
-	Array.from(currentSelection.parentNode.children).forEach(i => {
+	if (!currentSelection) {
+		Array.from(document.querySelectorAll(".song-list-entry"))
+			.forEach(i => i.open = false);
+		return;
+	}
+	let matches;
+	const songList = currentSelection.parentNode;
+	if (songList.classList.contains("artist-entry")) {
+		matches = Array.from(songList.children);
+	} else {
+		const searchString = songList.closest(".library-page").querySelector(".searchbar").value;
+		matches = getSearchMatches(searchString, songList);
+	}
+	matches.forEach(i => {
 		if (i !== currentSelection) {
 			i.open = false;
 			if (displayState === "hide") {
