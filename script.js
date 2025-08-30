@@ -228,11 +228,8 @@ function initArtistEntry(artist) {
 		events: {
 			toggle: (event) => {
 				const currentSelection = event.currentTarget;
-				if (currentSelection.open) {
-					closeListEntries(currentSelection, "hide");
-				} else {
-					closeListEntries(currentSelection, "unhide");
-				}
+				closeListEntries(currentSelection);
+				focusArtistEntry(currentSelection);
 			}
 		},
 		parent: artistsLibraryElement
@@ -285,28 +282,27 @@ function initQueueEntryMenuButtons(song, playButton, queueButton) {
 	});
 }
 
-function closeListEntries(currentSelection, displayState) {
+function closeListEntries(currentSelection) {
+	let songList;
 	if (!currentSelection) {
-		Array.from(document.querySelectorAll(".song-list-entry"))
-			.forEach(i => i.open = false);
-		return;
-	}
-	let matches;
-	const songList = currentSelection.parentNode;
-	if (songList.classList.contains("artist-entry")) {
-		matches = Array.from(songList.children);
+		songList = Array.from(document.querySelectorAll(".song-list-entry"));
 	} else {
-		const searchString = songList.closest(".library-page").querySelector(".searchbar").value;
-		matches = getSearchMatches(searchString, songList);
+		songList = Array.from(currentSelection.parentNode.children);
 	}
-	matches.forEach(i => {
+	songList.forEach(i => {
 		if (i !== currentSelection) {
 			i.open = false;
-			if (displayState === "hide") {
-				i.style.display = "none";
-			} else if (displayState === "unhide") {
-				i.style.display = "";
-			}
+		}
+	});
+}
+
+function focusArtistEntry(currentSelection) {
+	const searchString = artistsSearchbar.value;
+	const matches = getSearchMatches(searchString, artistsLibraryElement);
+	const displayState = currentSelection.open ? "none" : "";
+	matches.forEach(i => {
+		if (i !== currentSelection) {
+			i.style.display = displayState;
 		}
 	});
 }
