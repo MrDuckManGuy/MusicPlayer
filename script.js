@@ -140,11 +140,7 @@ function initSongListEntry(list, song) {
 			toggle: (event) => {
 				const currentSelection = event.currentTarget;
 				if (currentSelection.open) {
-					Array.from(currentSelection.parentNode.children).forEach(i => {
-						if (i !== currentSelection) {
-							i.open = false;
-						}
-					});
+					closeListEntries(currentSelection);
 				}
 			}
 		}
@@ -226,18 +222,10 @@ function initArtistEntry(artist) {
 			toggle: (event) => {
 				const currentSelection = event.currentTarget;
 				if (currentSelection.open) {
-					Array.from(artistsLibraryElement.children).forEach(i => {
-						if (i !== currentSelection) {
-							i.open = false;
-							i.style.display = "none";
-						}
-					});
+					closeListEntries(currentSelection, "hide");
 				} else {
-					Array.from(artistsLibraryElement.children).forEach(i => {
-						if (i !== currentSelection) {
-							i.style.display = "";
-						}
-					});
+					closeListEntries(currentSelection, "unhide");
+					searchLibraryPage(artistsSearchbar.value, artistsLibraryElement)
 				}
 			}
 		},
@@ -288,6 +276,19 @@ function initQueueEntryMenuButtons(song, playButton, queueButton) {
 		const targetId = song.queueId;
 		const index = songQueue.findIndex(i => i.queueId === targetId);
 		dequeue(index);
+	});
+}
+
+function closeListEntries(currentSelection, displayState) {
+	Array.from(currentSelection.parentNode.children).forEach(i => {
+		if (i !== currentSelection) {
+			i.open = false;
+			if (displayState === "hide") {
+				i.style.display = "none";
+			} else if (displayState === "unhide") {
+				i.style.display = "";
+			}
+		}
 	});
 }
 
