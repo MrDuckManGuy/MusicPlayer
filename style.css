@@ -194,9 +194,13 @@ button {
 .song-list-entry:open {
 	background-color: var(--bg2);
 }
-.song-list-entry-title {
+.song-list-entry-primary {
 	list-style: none;
 	cursor: pointer;
+}
+.song-list-entry-secondary {
+	color: #888;
+	font-size: small;
 }
 .song-list-entry-menu {
 	display: flex;
@@ -211,10 +215,6 @@ button {
 	padding: 0.5em;
 	border: 0;
 	background-color: var(--bg3);
-}
-.song-library-entry-artist {
-	color: #888;
-	font-size: small;
 }
 
 /* landscape */

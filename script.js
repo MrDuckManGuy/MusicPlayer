@@ -22,6 +22,7 @@ const albumCover = document.querySelector("#album-cover");
 
 function loadSongLibrary(files) {
 	resetSongList("library");
+	resetSongList("artists");
 	songLibrary = Array.from(files)
 		.filter(file => file.type.startsWith("audio/"))
 		.sort((a, b) => (a.name).localeCompare((b.name)))
@@ -34,6 +35,10 @@ function loadSongLibrary(files) {
 				Object.assign(song, metadata);
 				if (++readCounter === songLibrary.length) {
 					songLibrary.forEach(i => initSongListEntry("library", i));
+					[...(new Set(songLibrary.map(i => i.artist)))]
+						.sort()
+						.forEach(i => initArtistEntry(i));
+					songLibrary.forEach(i => initSongListEntry("artists", i));
 				}
 			},
 			onError: (error) => {
@@ -110,6 +115,9 @@ function resetSongList(list) {
 			songQueue = [];
 			songQueueElement.replaceChildren();
 			break;
+		case "artists":
+			artistsLibraryElement.replaceChildren();
+			break;
 		default:
 			break;
 	}
@@ -142,13 +150,13 @@ function initSongListEntry(list, song) {
 	});
 	const songListEntryTitle = createElement({
 		type: "summary",
-		classes: ["song-list-entry-title"],
+		classes: ["song-list-entry-primary"],
 		text: song.title ? song.title : song.file.name,
 		parent: songListEntry
 	});
 	const songListEntryArtist = createElement({
 		type: "div",
-		classes: ["song-library-entry-artist"],
+		classes: ["song-list-entry-secondary"],
 		text: song.artist ? song.artist : "unknown",
 		parent: songListEntryTitle
 	});
@@ -216,9 +224,39 @@ function initSongListEntry(list, song) {
 				dequeue(index);
 			});
 			break;
+		case "artists":
+			Array.from(artistsLibraryElement.children)
+				.find(i => i.querySelector("summary").textContent === song.artist)
+				.appendChild(songListEntry);
 		default:
 			break;
 	}
+}
+
+function initArtistEntry(artist) {
+	const artistEntry = createElement({
+		type: "details",
+		classes: ["song-list-entry"],
+		events: {
+			toggle: (event) => {
+				const currentSelection = event.currentTarget;
+				if (currentSelection.open) {
+					document.querySelectorAll("#artists-library > details").forEach(i => {
+						if (i !== currentSelection) {
+							i.open = false;
+						}
+					});
+				}
+			}
+		}
+	});
+	const artistEntryTitle = createElement({
+		type: "summary",
+		classes: ["song-list-entry-primary"],
+		text: artist ? artist : "unknown",
+		parent: artistEntry
+	});
+	artistsLibraryElement.appendChild(artistEntry);
 }
 
 // UI
