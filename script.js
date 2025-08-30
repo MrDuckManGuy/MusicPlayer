@@ -10,6 +10,7 @@ const songLibraryElement = document.querySelector("#song-library");
 const directorySelect = document.querySelector("#directory-select");
 const allSongSearchbar = document.querySelector("#all-song-searchbar");
 const artistsLibraryElement = document.querySelector("#artists-library");
+const artistsSearchbar = document.querySelector("#artists-searchbar");
 
 const audioPlayer = document.querySelector("#audioPlayer");
 const playerTab = document.querySelector("#playerTab");
@@ -123,9 +124,9 @@ function resetSongList(list) {
 	}
 }
 
-function searchSongLibrary(searchString) {
-	Array.from(songLibraryElement.children)
-		.forEach(i => i.style.display = i.querySelector("summary")
+function searchLibraryPage(searchString, libraryElement) {
+	Array.from(libraryElement.children)
+		.forEach(i => i.style.display = i.querySelector(".song-list-entry-primary")
 			.textContent
 			.toLowerCase()
 			.includes(searchString.toLowerCase()) ? "" : "none");
@@ -384,7 +385,12 @@ document.querySelectorAll("a").forEach(i => {
 
 allSongSearchbar.addEventListener("keyup", event => {
 	const searchString = allSongSearchbar.value;
-	searchSongLibrary(searchString);
+	searchLibraryPage(searchString, songLibraryElement);
+});
+
+artistsSearchbar.addEventListener("keyup", event => {
+	const searchString = artistsSearchbar.value;
+	searchLibraryPage(searchString, artistsLibraryElement);
 });
 
 // service worker
