@@ -200,31 +200,15 @@ function initSongListEntry(list, song) {
 	});
 	switch (list) {
 		case "library":
+			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			songLibraryElement.appendChild(songListEntry);
-			songListEntryPlay.addEventListener("click", () => {
-				loadSongQueue([song]);
-			});
-			songListEntryQueue.textContent = "Enqueue";
-			songListEntryQueue.addEventListener("click", () => {
-				enqueue(song);
-			});
 			break;
 		case "queue":
+			initQueueEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			songQueueElement.appendChild(songListEntry);
-			songListEntryPlay.addEventListener("click", () => {
-				const targetId = song.queueId;
-				const index = songQueue.findIndex(i => i.queueId === targetId);
-				currentSong = index;
-				loadSong();
-			});
-			songListEntryQueue.textContent = "Dequeue";
-			songListEntryQueue.addEventListener("click", () => {
-				const targetId = song.queueId;
-				const index = songQueue.findIndex(i => i.queueId === targetId);
-				dequeue(index);
-			});
 			break;
 		case "artists":
+			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			Array.from(artistsLibraryElement.children)
 				.find(i => i.querySelector("summary").textContent === song.artist)
 				.appendChild(songListEntry);
@@ -279,6 +263,31 @@ function createElement(data) {
 	}
 	if (data.parent) data.parent.appendChild(element);
 	return element;
+}
+
+function initLibraryEntryMenuButtons(song, playButton, queueButton) {
+	playButton.addEventListener("click", () => {
+		loadSongQueue([song]);
+	});
+	queueButton.textContent = "Enqueue";
+	queueButton.addEventListener("click", () => {
+		enqueue(song);
+	});
+}
+
+function initQueueEntryMenuButtons(song, playButton, queueButton) {
+	playButton.addEventListener("click", () => {
+		const targetId = song.queueId;
+		const index = songQueue.findIndex(i => i.queueId === targetId);
+		currentSong = index;
+		loadSong();
+	});
+	queueButton.textContent = "Dequeue";
+	queueButton.addEventListener("click", () => {
+		const targetId = song.queueId;
+		const index = songQueue.findIndex(i => i.queueId === targetId);
+		dequeue(index);
+	});
 }
 
 function enableControls(state) {
