@@ -244,6 +244,13 @@ function initArtistEntry(artist) {
 					document.querySelectorAll("#artists-library > details").forEach(i => {
 						if (i !== currentSelection) {
 							i.open = false;
+							i.style.display = "none";
+						}
+					});
+				} else {
+					document.querySelectorAll("#artists-library > details").forEach(i => {
+						if (i !== currentSelection) {
+							i.style.display = "";
 						}
 					});
 				}
