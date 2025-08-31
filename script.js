@@ -241,6 +241,49 @@ function initArtistEntry(artist) {
 		text: artist ? artist : "unknown",
 		parent: artistEntry
 	});
+	const artistEntryMenu = createElement({
+		type: "div",
+		classes: ["song-list-entry-menu"],
+		parent: artistEntry
+	});
+	const artistEntryPlay = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Play",
+		events: {
+			click: () => {
+				const songs = songLibrary.filter(i => i.artist === artist);
+				loadSongQueue(songs);
+				focusTab("#player-tab");
+				artistEntry.open = false;
+			}
+		},
+		parent: artistEntryMenu
+	});
+	const artistEntryQueue = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Enqueue",
+		events: {
+			click: () => {
+				const songs = songLibrary.filter(i => i.artist === artist);
+				songs.forEach(enqueue);
+				artistEntry.open = false;
+			}
+		},
+		parent: artistEntryMenu
+	});
+	const artistEntryPlaylist = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Add to Playlist",
+		events: {
+			click: () => {
+				artistEntry.open = false;
+			}
+		},
+		parent: artistEntryMenu
+	});
 }
 
 // UI
