@@ -106,6 +106,15 @@ function generateQueueId() {
 	}
 }
 
+function randomEnqueue() {
+	const randomSongCount = 8;
+	if (songLibrary.length <= randomSongCount) return;
+	shuffledSongLibrary = songLibrary.toSorted(() => 0.5 - Math.random());
+	randomSongs = shuffledSongLibrary.slice(0, randomSongCount);
+	loadSongQueue(randomSongs);
+	focusTab("#player-tab");
+}
+
 function resetSongList(list) {
 	switch (list) {
 		case "library":
