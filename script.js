@@ -3,6 +3,7 @@ const jsmediatags = window.jsmediatags;
 let currentSong;
 let songLibrary = [];
 let songQueue = [];
+let currentTab = "#library-tab";
 
 const songQueueElement = document.querySelector("#song-queue");
 
@@ -373,6 +374,12 @@ function setPlayingQueue() {
 }
 
 function focusTab(tabID) {
+	if (currentTab === "#library-tab" && tabID === "#library-tab") {
+		// go back to library menu if library tab already focused
+		tabID = "#library-menu"
+	} else {
+		currentTab = tabID;
+	}
 	document.querySelector(tabID).scrollIntoView({
 		behavior: "smooth",
 		block: "start"
