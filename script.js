@@ -4,6 +4,7 @@ let currentSong;
 let songLibrary = [];
 let songQueue = [];
 let currentTab = "#library-tab";
+let currentLibraryPage = "#library-menu";
 
 const songQueueElement = document.querySelector("#song-queue");
 
@@ -373,14 +374,20 @@ function setPlayingQueue() {
 	songQueueElement.children[currentSong].classList.add("playing");
 }
 
-function focusTab(tabID) {
-	if (currentTab === "#library-tab" && tabID === "#library-tab") {
-		// go back to library menu if library tab already focused
-		tabID = "#library-menu"
-	} else {
+function focusTab(tabID, pageID) {
+	destinationID = tabID;
+	if (currentTab !== "#library-tab" || tabID !== "#library-tab") {
 		currentTab = tabID;
+	} else {
+		if (pageID) {
+			// fix focus on orientation change
+			destinationID = pageID;
+		} else {
+			// go back to library menu if library tab already focused
+			destinationID = "#library-menu"
+		}
 	}
-	document.querySelector(tabID).scrollIntoView({
+	document.querySelector(destinationID).scrollIntoView({
 		behavior: "smooth",
 		block: "start"
 	});
@@ -452,6 +459,7 @@ document.querySelectorAll("a").forEach(i => {
 	i.addEventListener("click", event => {
 		event.preventDefault();
 		const id = (new URL(i.href)).hash;
+		currentLibraryPage = id;
 		document.querySelector(id).scrollIntoView({
 			behavior: "smooth",
 			block: "start"
@@ -467,6 +475,10 @@ allSongSearchbar.addEventListener("keyup", event => {
 artistsSearchbar.addEventListener("keyup", event => {
 	const searchString = artistsSearchbar.value;
 	searchLibraryPage(searchString, artistsLibraryElement);
+});
+
+screen.orientation.addEventListener("change", event => {
+	focusTab(currentTab, currentLibraryPage);
 });
 
 // service worker
