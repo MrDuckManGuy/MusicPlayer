@@ -374,15 +374,20 @@ function setPlayingQueue() {
 	songQueueElement.children[currentSong].classList.add("playing");
 }
 
-function focusTab(tabID, pageID) {
-	destinationID = tabID;
-	if (currentTab !== "#library-tab" || tabID !== "#library-tab") {
+function focusTab(tabID, resetOrientation) {
+	if (tabID !== "#library-tab") {
+		// focus non-library tab
 		currentTab = tabID;
-	} else if (pageID) {
-		// fix focus on orientation change
-		destinationID = pageID;
+		destinationID = tabID;
+	} else if (currentTab !== "#library-tab") {
+		// focus library tab
+		currentTab = "#library-tab";
+		destinationID = currentLibraryPage;
+	} else if (resetOrientation) {
+		// refocus library tab on change orientation
+		destinationID = currentLibraryPage;
 	} else {
-		// go back to library menu if library tab already focused
+		// return to library menu if library tab focused
 		currentLibraryPage = "#library-menu";
 		destinationID = "#library-menu";
 	}
@@ -477,7 +482,7 @@ artistsSearchbar.addEventListener("keyup", event => {
 });
 
 screen.orientation.addEventListener("change", event => {
-	focusTab(currentTab, currentLibraryPage);
+	focusTab(currentTab, true);
 });
 
 // service worker
