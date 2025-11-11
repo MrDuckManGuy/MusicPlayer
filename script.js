@@ -378,14 +378,13 @@ function focusTab(tabID, pageID) {
 	destinationID = tabID;
 	if (currentTab !== "#library-tab" || tabID !== "#library-tab") {
 		currentTab = tabID;
+	} else if (pageID) {
+		// fix focus on orientation change
+		destinationID = pageID;
 	} else {
-		if (pageID) {
-			// fix focus on orientation change
-			destinationID = pageID;
-		} else {
-			// go back to library menu if library tab already focused
-			destinationID = "#library-menu"
-		}
+		// go back to library menu if library tab already focused
+		currentLibraryPage = "#library-menu";
+		destinationID = "#library-menu";
 	}
 	document.querySelector(destinationID).scrollIntoView({
 		behavior: "smooth",
