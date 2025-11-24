@@ -13,6 +13,7 @@ const directorySelect = document.querySelector("#directory-select");
 const allSongSearchbar = document.querySelector("#all-song-searchbar");
 const artistsLibraryElement = document.querySelector("#artists-library");
 const artistsSearchbar = document.querySelector("#artists-searchbar");
+const playlistsLibraryElement = document.querySelector("#playlists-library");
 
 const audioPlayer = document.querySelector("#audioPlayer");
 const playerTab = document.querySelector("#playerTab");
@@ -26,11 +27,15 @@ const albumCover = document.querySelector("#album-cover");
 function loadSongLibrary(files) {
 	resetSongList("library");
 	resetSongList("artists");
-	songLibrary = Array.from(files)
+	resetSongList("playlists");
+	files = Array.from(files);
+	// init song library file entries
+	songLibrary = files
 		.filter(file => file.type.startsWith("audio/"))
 		.sort((a, b) => (a.name).localeCompare((b.name)))
 		.map(file => ({ file: file }));
 	let readCounter = 0;
+	// set metadata and init songs and init artists
 	songLibrary.forEach(song => {
 		jsmediatags.read(song.file, {
 			onSuccess: (tag) => {
@@ -48,6 +53,26 @@ function loadSongLibrary(files) {
 				console.error("jsmediatags error: " + JSON.stringify(error));
 			}
 		});
+	});
+	// init playlists
+	playlistFiles = files.filter(file => file.name.endsWith(".m3u"));
+	playlistFiles.forEach(playlistFile => {
+		if (playlistFile.name === ".album.m3u") return;
+		const reader = new FileReader();
+		reader.onload = () => {
+			playlistFileText = reader.result;
+			playlistName = playlistFileText
+				.match(/#PLAYLIST:(.*)/)[1];
+			playlistSongPaths = playlistFileText
+				.split("\n")
+				.filter(i => !i.startsWith("#") && i !== "");
+			playlistSongNames = playlistSongPaths.map(i => i.split("/").toReversed()[0]);
+			initPlaylistEntry(playlistName, playlistSongNames);
+		}
+		reader.onerror = (error) => {
+			console.error("playlist FileReader error: " + error);
+		}
+		reader.readAsText(playlistFile);
 	});
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 }
@@ -130,6 +155,9 @@ function resetSongList(list) {
 		case "artists":
 			artistsLibraryElement.replaceChildren();
 			break;
+		case "playlists":
+			playlistsLibraryElement.replaceChildren();
+			break;
 		default:
 			break;
 	}
@@ -150,7 +178,7 @@ function searchLibraryPage(searchString, libraryElement) {
 		.forEach(i => i.style.display = matches.includes(i) ? "" : "none");
 }
 
-function initSongListEntry(list, song) {
+function initSongListEntry(list, song, listParent) {
 	const songListEntry = createElement({
 		type: "details",
 		classes: ["song-list-entry"],
@@ -228,6 +256,12 @@ function initSongListEntry(list, song) {
 			Array.from(artistsLibraryElement.children)
 				.find(i => i.querySelector("summary").textContent === song.artist)
 				.appendChild(songListEntry);
+			break;
+		case "playlists":
+			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
+			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
+			listParent.appendChild(songListEntry);
+			break;
 		default:
 			break;
 	}
@@ -295,6 +329,74 @@ function initArtistEntry(artist) {
 		},
 		parent: artistEntryMenu
 	});
+}
+
+function initPlaylistEntry(name, titles) {
+	const playlistSongs = titles.map(title =>
+		songLibrary.find(song => song.file.name === title)
+	);
+	const playlistEntry = createElement({
+		type: "details",
+		classes: ["song-list-entry", "playlist-entry"],
+		events: {
+			toggle: (event) => {
+				const currentSelection = event.currentTarget;
+				closeListEntries(currentSelection);
+				// focusArtistEntry(currentSelection);
+			}
+		},
+		parent: playlistsLibraryElement
+	});
+	const playlistEntryTitle = createElement({
+		type: "summary",
+		classes: ["song-list-entry-primary"],
+		text: name ? name : "unknown",
+		parent: playlistEntry
+	});
+	const playlistEntryMenu = createElement({
+		type: "div",
+		classes: ["song-list-entry-menu"],
+		parent: playlistEntry
+	});
+	const playlistEntryPlay = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Play",
+		events: {
+			click: () => {
+				const songs = playlistSongs;
+				loadSongQueue(songs);
+				focusTab("#player-tab");
+				playlistEntry.open = false;
+			}
+		},
+		parent: playlistEntryMenu
+	});
+	const playlistEntryQueue = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Enqueue",
+		events: {
+			click: () => {
+				const songs = playlistSongs;
+				songs.forEach(enqueue);
+				playlistEntry.open = false;
+			}
+		},
+		parent: playlistEntryMenu
+	});
+	const playlistEntryPlaylist = createElement({
+		type: "button",
+		classes: ["song-list-entry-button"],
+		text: "Add to Playlist",
+		events: {
+			click: () => {
+				playlistEntry.open = false;
+			}
+		},
+		parent: playlistEntryMenu
+	});
+	playlistSongs.forEach(song => initSongListEntry("playlists", song, playlistEntry));
 }
 
 // UI
