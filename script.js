@@ -24,37 +24,12 @@ const title = document.querySelector("#title");
 const artist = document.querySelector("#artist");
 const albumCover = document.querySelector("#album-cover");
 
-function loadSongLibrary(files) {
-	resetSongList("library");
-	resetSongList("artists");
-	resetSongList("playlists");
-	files = Array.from(files);
-	// init song library file entries
-	songLibrary = files
-		.filter(file => file.type.startsWith("audio/"))
-		.sort((a, b) => (a.name).localeCompare((b.name)))
-		.map(file => ({ file: file }));
-	let readCounter = 0;
-	// set metadata and init songs and init artists
-	songLibrary.forEach(song => {
-		jsmediatags.read(song.file, {
-			onSuccess: (tag) => {
-				const metadata = getMetadata(tag);
-				Object.assign(song, metadata);
-				if (++readCounter === songLibrary.length) {
-					songLibrary.forEach(i => initSongListEntry("library", i));
-					[...(new Set(songLibrary.map(i => i.artist)))]
-						.sort()
-						.forEach(i => initArtistEntry(i));
-					songLibrary.forEach(i => initSongListEntry("artists", i));
-				}
-			},
-			onError: (error) => {
-				console.error("jsmediatags error: " + JSON.stringify(error));
-			}
-		});
-	});
-	// init playlists
+function initLibraryPageEntries(files) {
+	songLibrary.forEach(i => initSongListEntry("library", i));
+	[...(new Set(songLibrary.map(i => i.artist)))]
+		.sort()
+		.forEach(i => initArtistEntry(i));
+	songLibrary.forEach(i => initSongListEntry("artists", i));
 	playlistFiles = files.filter(file => file.name.endsWith(".m3u"));
 	playlistFiles.forEach(playlistFile => {
 		if (playlistFile.name === ".album.m3u") return;
@@ -73,6 +48,35 @@ function loadSongLibrary(files) {
 			console.error("playlist FileReader error: " + error);
 		}
 		reader.readAsText(playlistFile);
+	});
+}
+
+function loadSongLibrary(files) {
+	resetSongList("library");
+	resetSongList("artists");
+	resetSongList("playlists");
+	files = Array.from(files);
+	// init song library file entries
+	songLibrary = files
+		.filter(file => file.type.startsWith("audio/")
+			&& !file.type.endsWith("x-mpegurl"))
+		.sort((a, b) => (a.name).localeCompare((b.name)))
+		.map(file => ({ file: file }));
+	let readCounter = 0;
+	// read metadata
+	songLibrary.forEach(song => {
+		jsmediatags.read(song.file, {
+			onSuccess: (tag) => {
+				const metadata = getMetadata(tag);
+				Object.assign(song, metadata);
+				if (++readCounter === songLibrary.length) {
+					initLibraryPageEntries(files);
+				}
+			},
+			onError: (error) => {
+				console.error("jsmediatags error: " + JSON.stringify(error));
+			}
+		});
 	});
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 }
