@@ -137,10 +137,20 @@ function generateQueueId() {
 	}
 }
 
+function shuffle(a) {
+	for (let i = a.length - 1; i > 0; i--) {
+		let j = Math.floor(Math.random() * (i + 1));
+		[a[i], a[j]] = [a[j], a[i]]
+	}
+	return a;
+}
+
 function randomEnqueue() {
 	const randomSongCount = 8;
-	if (songLibrary.length <= randomSongCount) return;
-	shuffledSongLibrary = songLibrary.toSorted(() => 0.5 - Math.random());
+	if (songLibrary.length <= randomSongCount) {
+		return;
+	}
+	shuffledSongLibrary = shuffle(songLibrary);
 	randomSongs = shuffledSongLibrary.slice(0, randomSongCount);
 	loadSongQueue(randomSongs);
 	focusTab("#player-tab");
@@ -257,6 +267,7 @@ function initSongListEntry(list, song, listParent) {
 		case "artists":
 			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
 			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
+			// TODO: move this code to initArtistEntry and pass listParent
 			Array.from(artistsLibraryElement.children)
 				.find(i => i.querySelector("summary").textContent === song.artist)
 				.appendChild(songListEntry);
