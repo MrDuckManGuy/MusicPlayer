@@ -137,7 +137,15 @@ function generateQueueId() {
 	}
 }
 
+/*
+ * Shuffle array by Fisher-Yates algorithm
+ * @param {*[]} a - Array to be shuffled
+ * @returns {*[]} Shuffled copy of the array
+ */
 function shuffle(a) {
+	if (a.length < 2) {
+		return a;
+	}
 	for (let i = a.length - 1; i > 0; i--) {
 		let j = Math.floor(Math.random() * (i + 1));
 		[a[i], a[j]] = [a[j], a[i]]
@@ -145,13 +153,19 @@ function shuffle(a) {
 	return a;
 }
 
+/*
+ * Enqueue k random songs with unique artists
+ */
 function randomEnqueue() {
 	const randomSongCount = 8;
 	if (songLibrary.length <= randomSongCount) {
 		return;
 	}
-	shuffledSongLibrary = shuffle(songLibrary);
-	randomSongs = shuffledSongLibrary.slice(0, randomSongCount);
+	let songsByArtists = Object.groupBy(songLibrary, ({ artist }) => artist);
+	songsByArtists = Object.values(songsByArtists);
+	const songsByArtistsShuffled = shuffle(songsByArtists);
+	const randomArtists = songsByArtistsShuffled.slice(0, randomSongCount);
+	const randomSongs = randomArtists.map(i => shuffle(i)[0]);
 	loadSongQueue(randomSongs);
 	focusTab("#player-tab");
 }
