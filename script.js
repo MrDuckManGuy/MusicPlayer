@@ -154,18 +154,46 @@ function shuffle(a) {
 }
 
 /*
- * Enqueue k random songs with unique artists
+ * Select one song randomly, weighted inversely by number of songs by artist
+ * @param songSelectionList: copy of songLibrary to be mutated for random
+ * selection
+ * @returns: one randomly selected song
+ */
+function weightedRandomSelect(songSelectionList) {
+	const artistsSongsMap = Object.groupBy(songSelectionList,
+		({artist}) => artist);
+	const artistCount = Object.keys(artistsSongsMap).length;
+	const artistSongCounts = Object.fromEntries(
+		Object.entries(artistsSongsMap).map(([key, val]) => [key, val.length]));
+	const songWeights = [];
+	for (let song of songSelectionList) {
+		const artistSongCount = artistSongCounts[song.artist];
+		const songWeight = 1 / (artistCount * artistSongCount);
+		songWeights.push(songWeight);
+	}
+	let i;
+	for (i = 1; i < songWeights.length; i++) {
+		songWeights[i] += songWeights[i - 1];
+	}
+	const randomValue = Math.random();
+	for (i = 0; i < songWeights.length; i++) {
+		if (songWeights[i] > randomValue) {
+			return songSelectionList.splice(i, 1)[0];
+		}
+	}
+}
+
+/*
+ * Enqueue k random songs
  */
 function randomEnqueue() {
-	const randomSongCount = 8;
-	if (songLibrary.length <= randomSongCount) {
-		return;
+	const randomSongCount = Math.min(8, songLibrary.length);
+	const songLibraryCopy = Array.from(songLibrary)
+	const randomSongs = [];
+	for (let i = 0; i < randomSongCount; i++) {
+		const randomSong = weightedRandomSelect(songLibraryCopy);
+		randomSongs.push(randomSong);
 	}
-	let songsByArtists = Object.groupBy(songLibrary, ({ artist }) => artist);
-	songsByArtists = Object.values(songsByArtists);
-	const songsByArtistsShuffled = shuffle(songsByArtists);
-	const randomArtists = songsByArtistsShuffled.slice(0, randomSongCount);
-	const randomSongs = randomArtists.map(i => shuffle(i)[0]);
 	loadSongQueue(randomSongs);
 	focusTab("#player-tab");
 }
