@@ -1,8 +1,23 @@
 const jsmediatags = window.jsmediatags;
 
+/**
+ * song object
+ * @typedef {Object} Song
+ * @property {string} title
+ * @property {string} artist
+ * @property {string} album
+ * @property {File} file
+ * @property {string | undefined} queueId
+ */
+
+/** @type {number} */
 let currentSong;
+
+/** @type {Array<Song>} */
 let songLibrary = [];
+/** @type {Array<Song>} */
 let songQueue = [];
+
 let currentTab = "#library-tab";
 let currentLibraryPage = "#library-menu";
 
@@ -137,10 +152,10 @@ function generateQueueId() {
 	}
 }
 
-/*
+/**
  * Shuffle array by Fisher-Yates algorithm
  * @param {*[]} a - Array to be shuffled
- * @returns {*[]} Shuffled copy of the array
+ * @return {*[]} Shuffled copy of the array
  */
 function shuffle(a) {
 	if (a.length < 2) {
@@ -153,11 +168,11 @@ function shuffle(a) {
 	return a;
 }
 
-/*
+/**
  * Select one song randomly, weighted inversely by number of songs by artist
- * @param songSelectionList: copy of songLibrary to be mutated for random
- * selection
- * @returns: one randomly selected song
+ * @param {Song[]} songSelectionList - copy of songLibrary to be mutated for
+ * random selection
+ * @return {Song} one randomly selected song
  */
 function weightedRandomSelect(songSelectionList) {
 	const artistsSongsMap = Object.groupBy(songSelectionList,
@@ -183,7 +198,7 @@ function weightedRandomSelect(songSelectionList) {
 	}
 }
 
-/*
+/**
  * Enqueue k random songs
  */
 function randomEnqueue() {
