@@ -96,6 +96,10 @@ function loadSongLibrary(files) {
 	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 }
 
+/**
+ * Populate the song queue with a new list of songs
+ * @param {Song[]} songs - list of songs to push to the queue
+ */
 function loadSongQueue(songs) {
 	resetSongList("queue");
 	songs.forEach(enqueue);
@@ -103,6 +107,9 @@ function loadSongQueue(songs) {
 	loadSong();
 }
 
+/**
+ * Play the song from the queue marked as the current song
+ */
 function loadSong() {
 	const file = songQueue[currentSong].file;
 	audioPlayer.src = URL.createObjectURL(file);
@@ -114,6 +121,9 @@ function loadSong() {
 	setPlayingQueue();
 }
 
+/**
+ * Clear existing data from the audio player
+ */
 function resetAudioPlayer() {
 	audioPlayer.src = "";
 	audioPlayer.load();
@@ -121,12 +131,20 @@ function resetAudioPlayer() {
 	enableControls(false);
 }
 
+/**
+ * Push a song to the end of the song queue
+ * @param {Song} song - the song to be added to the queue
+ */
 function enqueue(song) {
 	song = Object.assign({ queueId: generateQueueId() }, song);
 	songQueue.push(song);
 	initSongListEntry("queue", song);
 }
 
+/**
+ * Remove a song from the song queue
+ * @param {number} index - the queue index of the song to be removed
+ */
 function dequeue(index) {
 	songQueue.splice(index, 1);
 	Array.from(songQueueElement.children)[index].remove();
@@ -140,6 +158,10 @@ function dequeue(index) {
 	}
 }
 
+/**
+ * Create an identifier for a song for the queue
+ * @return {string} an identifier string
+ */
 function generateQueueId() {
 	try {
 		return crypto.randomUUID();
@@ -150,22 +172,6 @@ function generateQueueId() {
 			.toString(base)
 			.padStart(idLength, 0);
 	}
-}
-
-/**
- * Shuffle array by Fisher-Yates algorithm
- * @param {*[]} a - Array to be shuffled
- * @return {*[]} Shuffled copy of the array
- */
-function shuffle(a) {
-	if (a.length < 2) {
-		return a;
-	}
-	for (let i = a.length - 1; i > 0; i--) {
-		let j = Math.floor(Math.random() * (i + 1));
-		[a[i], a[j]] = [a[j], a[i]]
-	}
-	return a;
 }
 
 /**
@@ -213,6 +219,10 @@ function randomEnqueue() {
 	focusTab("#player-tab");
 }
 
+/**
+ * Clear the elements of the provided song list
+ * @param {string} list - the song list to be cleared
+ */
 function resetSongList(list) {
 	switch (list) {
 		case "library":
