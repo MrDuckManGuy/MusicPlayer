@@ -21,6 +21,8 @@ let songQueue = [];
 let currentTab = "#library-tab";
 let currentLibraryPage = "#library-menu";
 
+let selectedEntry = null;
+
 const songQueueElement = document.querySelector("#song-queue");
 
 const songLibraryElement = document.querySelector("#song-library");
@@ -261,19 +263,11 @@ function searchLibraryPage(searchString, libraryElement) {
 
 function initSongListEntry(list, song, listParent) {
 	const songListEntry = createElement({
-		type: "details",
-		classes: ["song-list-entry"],
-		events: {
-			toggle: (event) => {
-				const currentSelection = event.currentTarget;
-				if (currentSelection.open) {
-					closeListEntries(currentSelection);
-				}
-			}
-		}
+		type: "div",
+		classes: ["song-list-entry"]
 	});
 	const songListEntryTitle = createElement({
-		type: "summary",
+		type: "div",
 		classes: ["song-list-entry-primary"],
 		text: song.title ? song.title : song.file.name,
 		parent: songListEntry
@@ -284,53 +278,21 @@ function initSongListEntry(list, song, listParent) {
 		text: song.artist ? song.artist : "unknown",
 		parent: songListEntryTitle
 	});
-	const songListEntryMenu = createElement({
-		type: "div",
-		classes: ["song-list-entry-menu"],
-		parent: songListEntry
-	});
-	const songListEntryPlay = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		text: "Play",
-		events: {
-			click: () => {
-				focusTab("#player-tab");
-				songListEntry.open = false;
-			}
-		},
-		parent: songListEntryMenu
-	});
-	const songListEntryQueue = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		events: {
-			click: () => {
-				songListEntry.open = false;
-			}
-		},
-		parent: songListEntryMenu
-	});
 	switch (list) {
 		case "library":
-			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			songLibraryElement.appendChild(songListEntry);
 			break;
 		case "queue":
-			initQueueEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			songQueueElement.appendChild(songListEntry);
 			break;
 		case "artists":
 			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
-			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
-			// TODO: move this code to initArtistEntry and pass listParent
 			Array.from(artistsLibraryElement.children)
 				.find(i => i.querySelector("summary").textContent === song.artist)
 				.appendChild(songListEntry);
 			break;
 		case "playlists":
 			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
-			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
 			listParent.appendChild(songListEntry);
 			break;
 		default:
@@ -548,6 +510,43 @@ function focusTab(tabID, resetOrientation) {
 	});
 }
 
+function enableEntryMenu(state) {
+	const entryMenu = document.querySelector("#all-songs-entry-menu");
+	for (let button of entryMenu.children) {
+		button.disabled = !state;
+	}
+}
+
+function selectEntry(target) {
+	if (selectedEntry) {
+		selectedEntry.classList.remove("selected");
+	}
+	targetEntry = target.closest(".song-list-entry");
+	if (selectedEntry === targetEntry) {
+		selectedEntry = null;
+		enableEntryMenu(false);
+	} else {
+		selectedEntry = targetEntry;
+		selectedEntry.classList.add("selected");
+		enableEntryMenu(true);
+	}
+}
+
+function playSelectedEntry() {
+	const index =
+		Array.from(songLibraryElement.children).indexOf(selectedEntry);
+	const songs = [songLibrary[index]];
+	loadSongQueue(songs);
+	focusTab("#player-tab");
+}
+
+function enqueueSelectedEntry() {
+	const index =
+		Array.from(songLibraryElement.children).indexOf(selectedEntry);
+	const songs = [songLibrary[index]];
+	songs.forEach(enqueue);
+}
+
 // controls
 
 function playLoadedSong() {
@@ -634,6 +633,10 @@ artistsSearchbar.addEventListener("keyup", event => {
 
 screen.orientation.addEventListener("change", event => {
 	focusTab(currentTab, true);
+});
+
+songLibraryElement.addEventListener("click", event => {
+	selectEntry(event.target);
 });
 
 // service worker

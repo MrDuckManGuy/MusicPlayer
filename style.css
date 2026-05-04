@@ -203,7 +203,7 @@ button {
 	padding: 0.5em;
 	overflow-wrap: anywhere;
 }
-.song-list-entry.playing {
+.song-list-entry.playing, .song-list-entry.selected {
 	background-color: var(--bg2);
 }
 .song-list-entry:open {
@@ -211,7 +211,6 @@ button {
 }
 .song-list-entry-primary {
 	list-style: none;
-	cursor: pointer;
 }
 .song-list-entry-secondary {
 	color: #888;
