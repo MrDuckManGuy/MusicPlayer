@@ -203,11 +203,14 @@ button {
 	padding: 0.5em;
 	overflow-wrap: anywhere;
 }
-.song-list-entry.playing, .song-list-entry.selected {
+.song-list-entry.playing {
+	border-right: 0.5em solid var(--bg3);
+}
+.song-list-entry.selected {
 	background-color: var(--bg2);
 }
-.song-list-entry:open {
-	background-color: var(--bg2);
+.artist-entry:open {
+	border: 2px solid var(--bg2);
 }
 .song-list-entry-primary {
 	list-style: none;

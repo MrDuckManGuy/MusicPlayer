@@ -21,7 +21,12 @@ let songQueue = [];
 let currentTab = "#library-tab";
 let currentLibraryPage = "#library-menu";
 
-let selectedEntry = null;
+const selectedEntries = {
+	songs: null,
+	artists: null,
+	playlists: null,
+	queue: null
+};
 
 const songQueueElement = document.querySelector("#song-queue");
 
@@ -510,41 +515,105 @@ function focusTab(tabID, resetOrientation) {
 	});
 }
 
-function enableEntryMenu(state) {
-	const entryMenu = document.querySelector("#all-songs-entry-menu");
+function enableEntryMenu(list, state) {
+	let entryMenu;
+	switch (list) {
+		case "songs":
+			entryMenu = document.querySelector("#all-songs-page > .enqueue-menu-bar");
+			break;
+		case "queue":
+			entryMenu = document.querySelector("#queue-tab > .enqueue-menu-bar");
+			break;
+		default:
+			break;
+	}
 	for (let button of entryMenu.children) {
 		button.disabled = !state;
 	}
 }
 
-function selectEntry(target) {
-	if (selectedEntry) {
-		selectedEntry.classList.remove("selected");
+function selectEntry(event) {
+	let list;
+	switch (event.currentTarget) {
+		case songLibraryElement:
+			list = "songs";
+			break;
+		case songQueueElement:
+			list = "queue";
+			break;
+		default:
+			break;
 	}
-	targetEntry = target.closest(".song-list-entry");
-	if (selectedEntry === targetEntry) {
-		selectedEntry = null;
-		enableEntryMenu(false);
+	if (selectedEntries[list] !== null) {
+		selectedEntries[list].classList.remove("selected");
+	}
+	targetEntry = event.target.closest(".song-list-entry");
+	if (selectedEntries[list] === targetEntry) {
+		selectedEntries[list] = null;
+		enableEntryMenu(list, false);
 	} else {
-		selectedEntry = targetEntry;
-		selectedEntry.classList.add("selected");
-		enableEntryMenu(true);
+		selectedEntries[list] = targetEntry;
+		selectedEntries[list].classList.add("selected");
+		enableEntryMenu(list, true);
 	}
 }
 
-function playSelectedEntry() {
-	const index =
-		Array.from(songLibraryElement.children).indexOf(selectedEntry);
-	const songs = [songLibrary[index]];
-	loadSongQueue(songs);
+function playSelectedEntry(event) {
+	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
+	let songList;
+	let list;
+	switch (songListElement) {
+		case songLibraryElement:
+			songList = songLibrary;
+			list = "songs";
+			break;
+		case songQueueElement:
+			songList = songQueue;
+			list = "queue";
+			break;
+		default:
+			break;
+	}
+	const songListEntries = Array.from(songListElement.children);
+	const index = songListEntries.indexOf(selectedEntries[list]);
+	const songs = [songList[index]];
+	switch (list) {
+		case "songs":
+			loadSongQueue(songs);
+			break;
+		case "queue":
+			currentSong = index;
+			loadSong();
+			break;
+		default:
+			break;
+	}
 	focusTab("#player-tab");
 }
 
-function enqueueSelectedEntry() {
-	const index =
-		Array.from(songLibraryElement.children).indexOf(selectedEntry);
-	const songs = [songLibrary[index]];
+function enqueueSelectedEntry(event) {
+	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
+	let songList;
+	let list;
+	switch (songListElement) {
+		case songLibraryElement:
+			songList = songLibrary;
+			list = "songs";
+			break;
+		default:
+			break;
+	}
+	const songListEntries = Array.from(songListElement.children);
+	const index = songListEntries.indexOf(selectedEntries[list]);
+	const songs = [songList[index]];
 	songs.forEach(enqueue);
+}
+
+function dequeueSelectedEntry() {
+	const songQueueEntries = Array.from(songQueueElement.children);
+	const index = songQueueEntries.indexOf(selectedEntries.queue);
+	dequeue(index);
+	enableEntryMenu("queue", false);
 }
 
 // controls
@@ -636,7 +705,11 @@ screen.orientation.addEventListener("change", event => {
 });
 
 songLibraryElement.addEventListener("click", event => {
-	selectEntry(event.target);
+	selectEntry(event);
+});
+
+songQueueElement.addEventListener("click", event => {
+	selectEntry(event);
 });
 
 // service worker
