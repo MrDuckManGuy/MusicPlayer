@@ -14,11 +14,12 @@
 <body ontouchstart="">
 
 	<div id="tab-container">
+
 		<div id="library-tab" class="tab">
 			<div id="library-menu" class="library-page">
 				<h1>Song Library</h1>
 				<nav id="library-menu-nav">
-					<a href="#all-songs-page">All Songs</a>
+					<a href="#all-songs-page">Songs</a>
 					<a href="#artists-page">Artists</a>
 					<a href="#playlists-page">Playlists</a>
 					<div id="directory-select-container">
@@ -29,12 +30,16 @@
 			</div>
 			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
 			<div id="all-songs-page" class="library-page">
-				<h2>All Songs</h2>
+				<h2>Songs</h2>
 				<div class="searchbar-container">
 					<input id="all-song-searchbar" class="searchbar" type="search" placeholder="Search" />
 				</div>
 				<div>
 					<button class="standard-button" onclick="randomEnqueue()">random</button>
+				</div>
+				<div>
+					<button class="standard-button" disabled onclick="">Play</button>
+					<button class="standard-button" disabled onclick="">Enqueue</button>
 				</div>
 				<div id="song-library" class="song-list"></div>
 			</div>
@@ -50,6 +55,7 @@
 				<div id="playlists-library" class="song-list"></div>
 			</div>
 		</div>
+
 		<div id="player-tab" class="tab">
 			<img id="album-cover" />
 			<audio id="audioPlayer"></audio>
@@ -58,16 +64,6 @@
 					<p id="title">-</p>
 					<p id="artist">-</p>
 				</div>
-				<!--
-				<div>
-					<input
-						type="file"
-						accept=".mp3,.m4a"
-						onchange="setAudio(event.target.files)"
-						multiple
-					/>
-				</div>
-				-->
 				<input
 					id="seekBar"
 					type="range"
@@ -87,11 +83,14 @@
 				</div>
 			</div>
 		</div>
+
 		<div id="queue-tab" class="tab">
 			<h1>Song Queue</h1>
 			<div id="song-queue" class="song-list"></div>
 		</div>
+
 	</div>
+
 	<nav id="tab-bar">
 		<button onclick="focusTab('#library-tab')">library</button>
 		<button onclick="focusTab('#player-tab')">player</button>

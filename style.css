@@ -28,6 +28,10 @@ button {
 	background-color: var(--bg3);
 	border: 0;
 }
+.standard-button:disabled {
+	background-color: var(--bg2);
+	color: var(--bg3);
+}
 #tab-container {
 	display: flex;
 	flex-direction: column;

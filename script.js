@@ -311,17 +311,6 @@ function initSongListEntry(list, song, listParent) {
 		},
 		parent: songListEntryMenu
 	});
-	const songListEntryPlaylist = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		text: "Add to Playlist",
-		events: {
-			click: () => {
-				songListEntry.open = false;
-			}
-		},
-		parent: songListEntryMenu
-	});
 	switch (list) {
 		case "library":
 			initLibraryEntryMenuButtons(song, songListEntryPlay, songListEntryQueue);
@@ -400,17 +389,6 @@ function initArtistEntry(artist) {
 		},
 		parent: artistEntryMenu
 	});
-	const artistEntryPlaylist = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		text: "Add to Playlist",
-		events: {
-			click: () => {
-				artistEntry.open = false;
-			}
-		},
-		parent: artistEntryMenu
-	});
 }
 
 function initPlaylistEntry(name, titles) {
@@ -462,17 +440,6 @@ function initPlaylistEntry(name, titles) {
 			click: () => {
 				const songs = playlistSongs;
 				songs.forEach(enqueue);
-				playlistEntry.open = false;
-			}
-		},
-		parent: playlistEntryMenu
-	});
-	const playlistEntryPlaylist = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		text: "Add to Playlist",
-		events: {
-			click: () => {
 				playlistEntry.open = false;
 			}
 		},
