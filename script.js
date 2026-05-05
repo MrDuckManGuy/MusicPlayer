@@ -13,11 +13,6 @@ const jsmediatags = window.jsmediatags;
 /** @type {number} */
 let currentSong;
 
-/** @type {Array<Song>} */
-let songLibrary = [];
-/** @type {Array<Song>} */
-let songQueue = [];
-
 let currentTab = "#library-tab";
 let currentLibraryPage = "#library-menu";
 
@@ -28,15 +23,109 @@ const selectedEntries = {
 	queue: null
 };
 
-const songQueueElement = document.querySelector("#song-queue");
+class SongList {}
 
-const songLibraryElement = document.querySelector("#song-library");
+class SongLibrary extends SongList {
+	/** @type {Array<Song>} */
+	songList;
+	element;
+	selectedEntry;
+	searchbar;
+
+	constructor() {
+		super();
+		this.element = document.querySelector("#song-library");
+		this.searchbar = document.querySelector("#all-song-searchbar");
+		this.element.addEventListener("click", event => {
+			selectEntry(event);
+		});
+		this.searchbar.addEventListener("keyup", event => {
+			const searchString = this.searchbar.value;
+			searchLibraryPage(searchString, this.element);
+		});
+	}
+
+	reset() {
+		this.songList = [];
+		this.element.replaceChildren();
+	}
+
+	appendEntry(entry) {
+		this.element.appendChild(entry);
+	}
+
+	selectEntry() {}
+	initEntries() {}
+}
+
+class ArtistLibrary extends SongList {
+	element;
+	searchbar;
+
+	constructor() {
+		super();
+		this.element = document.querySelector("#artists-library");
+		this.searchbar = document.querySelector("#artists-searchbar");
+		this.searchbar.addEventListener("keyup", event => {
+			const searchString = this.searchbar.value;
+			searchLibraryPage(searchString, this.element);
+		});
+	}
+
+	reset() {
+		this.element.replaceChildren();
+	}
+
+	appendEntry(entry) {
+		this.element.appendChild(entry);
+	}
+}
+
+class PlaylistLibrary extends SongList {
+	element;
+
+	constructor() {
+		super();
+		this.element = document.querySelector("#playlists-library");
+	}
+
+	reset() {
+		this.element.replaceChildren();
+	}
+
+	appendEntry(entry) {}
+}
+
+class SongQueue extends SongList {
+	/** @type {Array<Song>} */
+	songList;
+	element;
+	selectEntry;
+
+	constructor() {
+		super();
+		this.element = document.querySelector("#song-queue");
+		this.element.addEventListener("click", event => {
+			selectEntry(event);
+		});
+	}
+
+	reset() {
+		this.songList = [];
+		this.element.replaceChildren();
+	}
+
+	appendEntry(entry) {
+		this.element.appendChild(entry);
+	}
+}
+
+const songLibrary = new SongLibrary();
+const artistLibrary = new ArtistLibrary();
+const playlistLibrary = new PlaylistLibrary();
+const songQueue = new SongQueue();
+
 const directorySelect = document.querySelector("#directory-select");
-const allSongSearchbar = document.querySelector("#all-song-searchbar");
-const artistsLibraryElement = document.querySelector("#artists-library");
-const artistsSearchbar = document.querySelector("#artists-searchbar");
-const playlistsLibraryElement = document.querySelector("#playlists-library");
-
 const audioPlayer = document.querySelector("#audioPlayer");
 const playerTab = document.querySelector("#playerTab");
 const controlPanel = document.querySelector("#control-panel");
@@ -47,11 +136,11 @@ const artist = document.querySelector("#artist");
 const albumCover = document.querySelector("#album-cover");
 
 function initLibraryPageEntries(files) {
-	songLibrary.forEach(i => initSongListEntry("library", i));
-	[...(new Set(songLibrary.map(i => i.artist)))]
+	songLibrary.songList.forEach(i => initSongListEntry("library", i));
+	[...(new Set(songLibrary.songList.map(i => i.artist)))]
 		.sort()
 		.forEach(i => initArtistEntry(i));
-	songLibrary.forEach(i => initSongListEntry("artists", i));
+	songLibrary.songList.forEach(i => initSongListEntry("artists", i));
 	playlistFiles = files.filter(file => file.name.endsWith(".m3u"));
 	playlistFiles.forEach(playlistFile => {
 		if (playlistFile.name === ".album.m3u") return;
@@ -79,19 +168,19 @@ function loadSongLibrary(files) {
 	resetSongList("playlists");
 	files = Array.from(files);
 	// init song library file entries
-	songLibrary = files
+	songLibrary.songList = files
 		.filter(file => file.type.startsWith("audio/")
 			&& !file.type.endsWith("x-mpegurl"))
 		.sort((a, b) => (a.name).localeCompare((b.name)))
 		.map(file => ({ file: file }));
 	let readCounter = 0;
 	// read metadata
-	songLibrary.forEach(song => {
+	songLibrary.songList.forEach(song => {
 		jsmediatags.read(song.file, {
 			onSuccess: (tag) => {
 				const metadata = getMetadata(tag);
 				Object.assign(song, metadata);
-				if (++readCounter === songLibrary.length) {
+				if (++readCounter === songLibrary.songList.length) {
 					initLibraryPageEntries(files);
 				}
 			},
@@ -118,7 +207,7 @@ function loadSongQueue(songs) {
  * Play the song from the queue marked as the current song
  */
 function loadSong() {
-	const file = songQueue[currentSong].file;
+	const file = songQueue.songList[currentSong].file;
 	audioPlayer.src = URL.createObjectURL(file);
 	playLoadedSong();
 	jsmediatags.read(file, {
@@ -144,7 +233,7 @@ function resetAudioPlayer() {
  */
 function enqueue(song) {
 	song = Object.assign({ queueId: generateQueueId() }, song);
-	songQueue.push(song);
+	songQueue.songList.push(song);
 	initSongListEntry("queue", song);
 }
 
@@ -153,12 +242,12 @@ function enqueue(song) {
  * @param {number} index - the queue index of the song to be removed
  */
 function dequeue(index) {
-	songQueue.splice(index, 1);
-	Array.from(songQueueElement.children)[index].remove();
-	if (songQueue.length === 0) {
+	songQueue.songList.splice(index, 1);
+	Array.from(songQueue.element.children)[index].remove();
+	if (songQueue.songList.length === 0) {
 		resetAudioPlayer();
 	} else if (index === currentSong) {
-		currentSong %= songQueue.length;
+		currentSong %= songQueue.songList.length;
 		loadSong(); // load after target
 	} else if (index < currentSong) {
 		currentSong--; // fix index after remove preceding song
@@ -215,8 +304,8 @@ function weightedRandomSelect(songSelectionList) {
  * Enqueue k random songs
  */
 function randomEnqueue() {
-	const randomSongCount = Math.min(8, songLibrary.length);
-	const songLibraryCopy = Array.from(songLibrary)
+	const randomSongCount = Math.min(8, songLibrary.songList.length);
+	const songLibraryCopy = Array.from(songLibrary.songList)
 	const randomSongs = [];
 	for (let i = 0; i < randomSongCount; i++) {
 		const randomSong = weightedRandomSelect(songLibraryCopy);
@@ -233,18 +322,16 @@ function randomEnqueue() {
 function resetSongList(list) {
 	switch (list) {
 		case "library":
-			songLibrary = [];
-			songLibraryElement.replaceChildren();
+			songLibrary.reset();
 			break;
 		case "queue":
-			songQueue = [];
-			songQueueElement.replaceChildren();
+			songQueue.reset();
 			break;
 		case "artists":
-			artistsLibraryElement.replaceChildren();
+			artistLibrary.reset();
 			break;
 		case "playlists":
-			playlistsLibraryElement.replaceChildren();
+			playlistLibrary.reset();
 			break;
 		default:
 			break;
@@ -285,14 +372,14 @@ function initSongListEntry(list, song, listParent) {
 	});
 	switch (list) {
 		case "library":
-			songLibraryElement.appendChild(songListEntry);
+			songLibrary.appendEntry(songListEntry);
 			break;
 		case "queue":
-			songQueueElement.appendChild(songListEntry);
+			songQueue.appendEntry(songListEntry);
 			break;
 		case "artists":
 			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
-			Array.from(artistsLibraryElement.children)
+			Array.from(artistLibrary.element.children)
 				.find(i => i.querySelector("summary").textContent === song.artist)
 				.appendChild(songListEntry);
 			break;
@@ -316,7 +403,7 @@ function initArtistEntry(artist) {
 				focusArtistEntry(currentSelection);
 			}
 		},
-		parent: artistsLibraryElement
+		parent: artistLibrary.element
 	});
 	const artistEntryTitle = createElement({
 		type: "summary",
@@ -335,7 +422,7 @@ function initArtistEntry(artist) {
 		text: "Play",
 		events: {
 			click: () => {
-				const songs = songLibrary.filter(i => i.artist === artist);
+				const songs = songLibrary.songList.filter(i => i.artist === artist);
 				loadSongQueue(songs);
 				focusTab("#player-tab");
 				artistEntry.open = false;
@@ -349,7 +436,7 @@ function initArtistEntry(artist) {
 		text: "Enqueue",
 		events: {
 			click: () => {
-				const songs = songLibrary.filter(i => i.artist === artist);
+				const songs = songLibrary.songList.filter(i => i.artist === artist);
 				songs.forEach(enqueue);
 				artistEntry.open = false;
 			}
@@ -360,7 +447,7 @@ function initArtistEntry(artist) {
 
 function initPlaylistEntry(name, titles) {
 	const playlistSongs = titles.map(title =>
-		songLibrary.find(song => song.file.name === title)
+		songLibrary.songList.find(song => song.file.name === title)
 	);
 	const playlistEntry = createElement({
 		type: "details",
@@ -372,7 +459,7 @@ function initPlaylistEntry(name, titles) {
 				// focusArtistEntry(currentSelection);
 			}
 		},
-		parent: playlistsLibraryElement
+		parent: playlistLibrary.element
 	});
 	const playlistEntryTitle = createElement({
 		type: "summary",
@@ -443,14 +530,14 @@ function initLibraryEntryMenuButtons(song, playButton, queueButton) {
 function initQueueEntryMenuButtons(song, playButton, queueButton) {
 	playButton.addEventListener("click", () => {
 		const targetId = song.queueId;
-		const index = songQueue.findIndex(i => i.queueId === targetId);
+		const index = songQueue.songList.findIndex(i => i.queueId === targetId);
 		currentSong = index;
 		loadSong();
 	});
 	queueButton.textContent = "Dequeue";
 	queueButton.addEventListener("click", () => {
 		const targetId = song.queueId;
-		const index = songQueue.findIndex(i => i.queueId === targetId);
+		const index = songQueue.songList.findIndex(i => i.queueId === targetId);
 		dequeue(index);
 	});
 }
@@ -470,8 +557,8 @@ function closeListEntries(currentSelection) {
 }
 
 function focusArtistEntry(currentSelection) {
-	const searchString = artistsSearchbar.value;
-	const matches = getSearchMatches(searchString, artistsLibraryElement);
+	const searchString = artistLibrary.searchbar.value;
+	const matches = getSearchMatches(searchString, artistLibrary.element);
 	const displayState = currentSelection.open ? "none" : "";
 	matches.forEach(i => {
 		if (i !== currentSelection) {
@@ -486,10 +573,10 @@ function enableControls(state) {
 }
 
 function setPlayingQueue() {
-	Array.from(songQueueElement.children).forEach(song => {
+	Array.from(songQueue.element.children).forEach(song => {
 		song.classList.remove("playing");
 	});
-	songQueueElement.children[currentSong].classList.add("playing");
+	songQueue.element.children[currentSong].classList.add("playing");
 }
 
 function focusTab(tabID, resetOrientation) {
@@ -535,10 +622,10 @@ function enableEntryMenu(list, state) {
 function selectEntry(event) {
 	let list;
 	switch (event.currentTarget) {
-		case songLibraryElement:
+		case songLibrary.element:
 			list = "songs";
 			break;
-		case songQueueElement:
+		case songQueue.element:
 			list = "queue";
 			break;
 		default:
@@ -563,12 +650,12 @@ function playSelectedEntry(event) {
 	let songList;
 	let list;
 	switch (songListElement) {
-		case songLibraryElement:
-			songList = songLibrary;
+		case songLibrary.element:
+			songList = songLibrary.songList;
 			list = "songs";
 			break;
-		case songQueueElement:
-			songList = songQueue;
+		case songQueue.element:
+			songList = songQueue.songList;
 			list = "queue";
 			break;
 		default:
@@ -596,8 +683,8 @@ function enqueueSelectedEntry(event) {
 	let songList;
 	let list;
 	switch (songListElement) {
-		case songLibraryElement:
-			songList = songLibrary;
+		case songLibrary.element:
+			songList = songLibrary.songList;
 			list = "songs";
 			break;
 		default:
@@ -610,7 +697,7 @@ function enqueueSelectedEntry(event) {
 }
 
 function dequeueSelectedEntry() {
-	const songQueueEntries = Array.from(songQueueElement.children);
+	const songQueueEntries = Array.from(songQueue.element.children);
 	const index = songQueueEntries.indexOf(selectedEntries.queue);
 	dequeue(index);
 	enableEntryMenu("queue", false);
@@ -652,9 +739,9 @@ function nextSong() {
 
 function updateSongIndex(adv) {
 	currentSong += adv;
-	currentSong %= songQueue.length;
+	currentSong %= songQueue.songList.length;
 	if (currentSong < 0) {
-		currentSong = songQueue.length + currentSong;
+		currentSong = songQueue.songList.length + currentSong;
 	}
 }
 
@@ -690,26 +777,8 @@ document.querySelectorAll("a").forEach(i => {
 	});
 });
 
-allSongSearchbar.addEventListener("keyup", event => {
-	const searchString = allSongSearchbar.value;
-	searchLibraryPage(searchString, songLibraryElement);
-});
-
-artistsSearchbar.addEventListener("keyup", event => {
-	const searchString = artistsSearchbar.value;
-	searchLibraryPage(searchString, artistsLibraryElement);
-});
-
 screen.orientation.addEventListener("change", event => {
 	focusTab(currentTab, true);
-});
-
-songLibraryElement.addEventListener("click", event => {
-	selectEntry(event);
-});
-
-songQueueElement.addEventListener("click", event => {
-	selectEntry(event);
 });
 
 // service worker
