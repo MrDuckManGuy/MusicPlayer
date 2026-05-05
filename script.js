@@ -16,13 +16,6 @@ let currentSong;
 let currentTab = "#library-tab";
 let currentLibraryPage = "#library-menu";
 
-const selectedEntries = {
-	songs: null,
-	artists: null,
-	playlists: null,
-	queue: null
-};
-
 class SongList {}
 
 class SongLibrary extends SongList {
@@ -34,8 +27,10 @@ class SongLibrary extends SongList {
 
 	constructor() {
 		super();
+		this.songList = [];
 		this.element = document.querySelector("#song-library");
 		this.searchbar = document.querySelector("#all-song-searchbar");
+		this.selectedEntry = null;
 		this.element.addEventListener("click", event => {
 			selectEntry(event);
 		});
@@ -56,6 +51,19 @@ class SongLibrary extends SongList {
 
 	selectEntry() {}
 	initEntries() {}
+
+	enableEntryMenu(state) {
+		const entryMenu =
+			document.querySelector("#all-songs-page > .enqueue-menu-bar");
+		for (let button of entryMenu.children) {
+			button.disabled = !state;
+		}
+	}
+
+	playEntry(index) {
+		const songs = [this.songList[index]];
+		loadSongQueue(songs);
+	}
 }
 
 class ArtistLibrary extends SongList {
@@ -102,7 +110,9 @@ class SongQueue extends SongList {
 
 	constructor() {
 		super();
+		this.songList = [];
 		this.element = document.querySelector("#song-queue");
+		this.selectedEntry = null;
 		this.element.addEventListener("click", event => {
 			selectEntry(event);
 		});
@@ -115,6 +125,19 @@ class SongQueue extends SongList {
 
 	appendEntry(entry) {
 		this.element.appendChild(entry);
+	}
+
+	enableEntryMenu(state) {
+		const entryMenu =
+			document.querySelector("#queue-tab > .enqueue-menu-bar");
+		for (let button of entryMenu.children) {
+			button.disabled = !state;
+		}
+	}
+
+	playEntry(index) {
+		currentSong = index;
+		loadSong();
 	}
 }
 
@@ -326,6 +349,19 @@ function searchLibraryPage(searchString, libraryElement) {
 		.forEach(i => i.style.display = matches.includes(i) ? "" : "none");
 }
 
+function elementToLibrary(element) {
+	switch (element) {
+		case songLibrary.element:
+			return songLibrary;
+		case artistLibrary.element:
+			return artistLibrary;
+		case playlistLibrary.element:
+			return playlistLibrary;
+		case songQueue.element:
+			return songQueue;
+	}
+}
+
 function initSongListEntry(list, song, listParent) {
 	const songListEntry = createElement({
 		type: "div",
@@ -491,31 +527,6 @@ function createElement(data) {
 	return element;
 }
 
-function initLibraryEntryMenuButtons(song, playButton, queueButton) {
-	playButton.addEventListener("click", () => {
-		loadSongQueue([song]);
-	});
-	queueButton.textContent = "Enqueue";
-	queueButton.addEventListener("click", () => {
-		enqueue(song);
-	});
-}
-
-function initQueueEntryMenuButtons(song, playButton, queueButton) {
-	playButton.addEventListener("click", () => {
-		const targetId = song.queueId;
-		const index = songQueue.songList.findIndex(i => i.queueId === targetId);
-		currentSong = index;
-		loadSong();
-	});
-	queueButton.textContent = "Dequeue";
-	queueButton.addEventListener("click", () => {
-		const targetId = song.queueId;
-		const index = songQueue.songList.findIndex(i => i.queueId === targetId);
-		dequeue(index);
-	});
-}
-
 function closeListEntries(currentSelection) {
 	let songList;
 	if (!currentSelection) {
@@ -576,105 +587,45 @@ function focusTab(tabID, resetOrientation) {
 	});
 }
 
-function enableEntryMenu(list, state) {
-	let entryMenu;
-	switch (list) {
-		case "songs":
-			entryMenu = document.querySelector("#all-songs-page > .enqueue-menu-bar");
-			break;
-		case "queue":
-			entryMenu = document.querySelector("#queue-tab > .enqueue-menu-bar");
-			break;
-		default:
-			break;
-	}
-	for (let button of entryMenu.children) {
-		button.disabled = !state;
-	}
-}
-
 function selectEntry(event) {
-	let list;
-	switch (event.currentTarget) {
-		case songLibrary.element:
-			list = "songs";
-			break;
-		case songQueue.element:
-			list = "queue";
-			break;
-		default:
-			break;
-	}
-	if (selectedEntries[list] !== null) {
-		selectedEntries[list].classList.remove("selected");
+	const songList = elementToLibrary(event.currentTarget);
+	if (songList.selectedEntry !== null) {
+		songList.selectedEntry.classList.remove("selected");
 	}
 	targetEntry = event.target.closest(".song-list-entry");
-	if (selectedEntries[list] === targetEntry) {
-		selectedEntries[list] = null;
-		enableEntryMenu(list, false);
+	if (songList.selectedEntry === targetEntry) {
+		songList.selectedEntry = null;
+		songList.enableEntryMenu(false);
 	} else {
-		selectedEntries[list] = targetEntry;
-		selectedEntries[list].classList.add("selected");
-		enableEntryMenu(list, true);
+		songList.selectedEntry = targetEntry;
+		songList.selectedEntry.classList.add("selected");
+		songList.enableEntryMenu(true);
 	}
 }
 
 function playSelectedEntry(event) {
 	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
-	let songList;
-	let list;
-	switch (songListElement) {
-		case songLibrary.element:
-			songList = songLibrary.songList;
-			list = "songs";
-			break;
-		case songQueue.element:
-			songList = songQueue.songList;
-			list = "queue";
-			break;
-		default:
-			break;
-	}
+	const songList = elementToLibrary(songListElement);
 	const songListEntries = Array.from(songListElement.children);
-	const index = songListEntries.indexOf(selectedEntries[list]);
-	const songs = [songList[index]];
-	switch (list) {
-		case "songs":
-			loadSongQueue(songs);
-			break;
-		case "queue":
-			currentSong = index;
-			loadSong();
-			break;
-		default:
-			break;
-	}
+	const index = songListEntries.indexOf(songList.selectedEntry);
+	songList.playEntry(index);
 	focusTab("#player-tab");
 }
 
 function enqueueSelectedEntry(event) {
 	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
-	let songList;
-	let list;
-	switch (songListElement) {
-		case songLibrary.element:
-			songList = songLibrary.songList;
-			list = "songs";
-			break;
-		default:
-			break;
-	}
+	const songList = elementToLibrary(songListElement);
 	const songListEntries = Array.from(songListElement.children);
-	const index = songListEntries.indexOf(selectedEntries[list]);
-	const songs = [songList[index]];
+	const index = songListEntries.indexOf(songList.selectedEntry);
+	const songs = [songList.songList[index]];
 	songs.forEach(enqueue);
 }
 
 function dequeueSelectedEntry() {
 	const songQueueEntries = Array.from(songQueue.element.children);
-	const index = songQueueEntries.indexOf(selectedEntries.queue);
+	const index = songQueueEntries.indexOf(songQueue.selectedEntry);
 	dequeue(index);
-	enableEntryMenu("queue", false);
+	songQueue.enableEntryMenu(false);
 }
 
 // controls
