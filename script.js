@@ -76,9 +76,7 @@ class ArtistLibrary extends SongList {
 		this.element.replaceChildren();
 	}
 
-	appendEntry(entry) {
-		this.element.appendChild(entry);
-	}
+	appendEntry(entry) {}
 }
 
 class PlaylistLibrary extends SongList {
@@ -163,9 +161,7 @@ function initLibraryPageEntries(files) {
 }
 
 function loadSongLibrary(files) {
-	resetSongList("library");
-	resetSongList("artists");
-	resetSongList("playlists");
+	[songLibrary, artistLibrary, playlistLibrary].forEach(i => i.reset());
 	files = Array.from(files);
 	// init song library file entries
 	songLibrary.songList = files
@@ -197,7 +193,7 @@ function loadSongLibrary(files) {
  * @param {Song[]} songs - list of songs to push to the queue
  */
 function loadSongQueue(songs) {
-	resetSongList("queue");
+	songQueue.reset();
 	songs.forEach(enqueue);
 	currentSong = 0;
 	loadSong();
@@ -315,29 +311,6 @@ function randomEnqueue() {
 	focusTab("#player-tab");
 }
 
-/**
- * Clear the elements of the provided song list
- * @param {string} list - the song list to be cleared
- */
-function resetSongList(list) {
-	switch (list) {
-		case "library":
-			songLibrary.reset();
-			break;
-		case "queue":
-			songQueue.reset();
-			break;
-		case "artists":
-			artistLibrary.reset();
-			break;
-		case "playlists":
-			playlistLibrary.reset();
-			break;
-		default:
-			break;
-	}
-}
-
 function getSearchMatches(searchString, libraryElement) {
 	return Array.from(libraryElement.children)
 		.filter(i => i.querySelector(".song-list-entry-primary")
@@ -370,6 +343,7 @@ function initSongListEntry(list, song, listParent) {
 		text: song.artist ? song.artist : "unknown",
 		parent: songListEntryTitle
 	});
+	// TODO: ... songList.appendEntry(songListEntry);
 	switch (list) {
 		case "library":
 			songLibrary.appendEntry(songListEntry);
