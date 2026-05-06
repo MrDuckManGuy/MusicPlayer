@@ -45,7 +45,9 @@ class SongLibrary extends SongList {
 		this.element.replaceChildren();
 	}
 
-	appendEntry(entry) {
+	appendEntry(song) {
+		const secondaryText = song.artist ? song.artist : "unknown";
+		const entry = createSongListEntry(song, secondaryText);
 		this.element.appendChild(entry);
 	}
 
@@ -67,6 +69,7 @@ class SongLibrary extends SongList {
 }
 
 class ArtistLibrary extends SongList {
+	artistList;
 	element;
 	searchbar;
 
@@ -80,11 +83,21 @@ class ArtistLibrary extends SongList {
 		});
 	}
 
+	setArtists(artistList) {
+		this.artistList = artistList;
+	}
+
 	reset() {
 		this.element.replaceChildren();
 	}
 
-	appendEntry(entry) {}
+	appendEntry(song) {
+		const secondaryText = song.album ? song.album : "unknown";
+		const entry = createSongListEntry(song, secondaryText);
+		const index = artistLibrary.artistList.indexOf(song.artist);
+		const artistElement = artistLibrary.element.children.item(index);
+		artistElement.appendChild(entry);
+	}
 }
 
 class PlaylistLibrary extends SongList {
@@ -99,7 +112,11 @@ class PlaylistLibrary extends SongList {
 		this.element.replaceChildren();
 	}
 
-	appendEntry(entry) {}
+	appendEntry(song, playlist) {
+		const secondaryText = song.album ? song.album : "unknown";
+		const entry = createSongListEntry(song, secondaryText);
+		playlist.appendChild(entry);
+	}
 }
 
 class SongQueue extends SongList {
@@ -123,7 +140,9 @@ class SongQueue extends SongList {
 		this.element.replaceChildren();
 	}
 
-	appendEntry(entry) {
+	appendEntry(song) {
+		const secondaryText = song.artist ? song.artist : "unknown";
+		const entry = createSongListEntry(song, secondaryText);
 		this.element.appendChild(entry);
 	}
 
@@ -157,11 +176,12 @@ const artist = document.querySelector("#artist");
 const albumCover = document.querySelector("#album-cover");
 
 function initLibraryPageEntries(files) {
-	songLibrary.songList.forEach(i => initSongListEntry("library", i));
-	[...(new Set(songLibrary.songList.map(i => i.artist)))]
-		.sort()
-		.forEach(i => initArtistEntry(i));
-	songLibrary.songList.forEach(i => initSongListEntry("artists", i));
+	songLibrary.songList.forEach(i => songLibrary.appendEntry(i));
+	const artistList =
+		[...(new Set(songLibrary.songList.map(i => i.artist)))].sort()
+	artistLibrary.setArtists(artistList);
+	artistLibrary.artistList.forEach(i => initArtistEntry(i));
+	songLibrary.songList.forEach(i => artistLibrary.appendEntry(i));
 	playlistFiles = files.filter(file => file.name.endsWith(".m3u"));
 	playlistFiles.forEach(playlistFile => {
 		if (playlistFile.name === ".album.m3u") return;
@@ -253,7 +273,7 @@ function resetAudioPlayer() {
 function enqueue(song) {
 	song = Object.assign({ queueId: generateQueueId() }, song);
 	songQueue.songList.push(song);
-	initSongListEntry("queue", song);
+	songQueue.appendEntry(song);
 }
 
 /**
@@ -362,7 +382,7 @@ function elementToLibrary(element) {
 	}
 }
 
-function initSongListEntry(list, song, listParent) {
+function createSongListEntry(song, secondaryText) {
 	const songListEntry = createElement({
 		type: "div",
 		classes: ["song-list-entry"]
@@ -376,30 +396,10 @@ function initSongListEntry(list, song, listParent) {
 	const songListEntrySecondary = createElement({
 		type: "div",
 		classes: ["song-list-entry-secondary"],
-		text: song.artist ? song.artist : "unknown",
+		text: secondaryText,
 		parent: songListEntryTitle
 	});
-	// TODO: ... songList.appendEntry(songListEntry);
-	switch (list) {
-		case "library":
-			songLibrary.appendEntry(songListEntry);
-			break;
-		case "queue":
-			songQueue.appendEntry(songListEntry);
-			break;
-		case "artists":
-			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
-			Array.from(artistLibrary.element.children)
-				.find(i => i.querySelector("summary").textContent === song.artist)
-				.appendChild(songListEntry);
-			break;
-		case "playlists":
-			songListEntrySecondary.textContent = song.album ? song.album : "unknown";
-			listParent.appendChild(songListEntry);
-			break;
-		default:
-			break;
-	}
+	return songListEntry;
 }
 
 function initArtistEntry(artist) {
@@ -509,7 +509,7 @@ function initPlaylistEntry(name, titles) {
 		},
 		parent: playlistEntryMenu
 	});
-	playlistSongs.forEach(song => initSongListEntry("playlists", song, playlistEntry));
+	playlistSongs.forEach(song => playlistLibrary.appendEntry(song, playlistEntry));
 }
 
 // UI
