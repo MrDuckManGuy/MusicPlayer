@@ -71,15 +71,20 @@ class SongLibrary extends SongList {
 class ArtistLibrary extends SongList {
 	artistList;
 	element;
+	selectedEntry;
 	searchbar;
 
 	constructor() {
 		super();
 		this.element = document.querySelector("#artists-library");
 		this.searchbar = document.querySelector("#artists-searchbar");
+		this.selectedEntry = null;
 		this.searchbar.addEventListener("keyup", event => {
 			const searchString = this.searchbar.value;
 			searchLibraryPage(searchString, this.element);
+		});
+		this.element.addEventListener("click", event => {
+			selectEntry(event);
 		});
 	}
 
@@ -97,6 +102,14 @@ class ArtistLibrary extends SongList {
 		const index = artistLibrary.artistList.indexOf(song.artist);
 		const artistElement = artistLibrary.element.children.item(index);
 		artistElement.appendChild(entry);
+	}
+
+	enableEntryMenu(state) {
+		const entryMenu =
+			document.querySelector("#artists-page > .enqueue-menu-bar");
+		for (let button of entryMenu.children) {
+			button.disabled = !state;
+		}
 	}
 }
 
@@ -421,6 +434,7 @@ function initArtistEntry(artist) {
 		text: artist ? artist : "unknown",
 		parent: artistEntry
 	});
+	/*
 	const artistEntryMenu = createElement({
 		type: "div",
 		classes: ["song-list-entry-menu"],
@@ -453,6 +467,7 @@ function initArtistEntry(artist) {
 		},
 		parent: artistEntryMenu
 	});
+	*/
 }
 
 function initPlaylistEntry(name, titles) {

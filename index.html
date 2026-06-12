@@ -29,6 +29,7 @@
 				</nav>
 			</div>
 			<a id="library-back-btn" href="#library-menu">&lt; Back</a>
+
 			<div id="all-songs-page" class="library-page song-list-page">
 				<h2>Songs</h2>
 				<div class="searchbar-container">
@@ -38,18 +39,26 @@
 					<button class="standard-button" onclick="randomEnqueue()">random</button>
 				</div>
 				<div class="enqueue-menu-bar">
-					<button class="standard-button" disabled onclick="playSelectedEntry(event)">Play</button>
-					<button class="standard-button" disabled onclick="enqueueSelectedEntry(event)">Enqueue</button>
+					<button class="standard-button one-queue-btn" disabled onclick="playSelectedEntry(event)">Play</button>
+					<button class="standard-button one-queue-btn" disabled onclick="enqueueSelectedEntry(event)">Enqueue</button>
 				</div>
 				<div id="song-library" class="song-list"></div>
 			</div>
+
 			<div id="artists-page" class="library-page song-list-page">
 				<h2>Artists</h2>
 				<div class="searchbar-container">
 					<input id="artists-searchbar" class="searchbar" type="search" placeholder="Search" />
 				</div>
+				<div class="enqueue-menu-bar">
+					<button class="standard-button one-queue-btn" disabled onclick="playSelectedEntry(event)">Play</button>
+					<button class="standard-button one-queue-btn" disabled onclick="enqueueSelectedEntry(event)">Enqueue</button>
+					<button class="standard-button all-queue-btn" disabled onclick="">Play All</button>
+					<button class="standard-button all-queue-btn" disabled onclick="">Enqueue All</button>
+				</div>
 				<div id="artists-library" class="song-list"></div>
 			</div>
+
 			<div id="playlists-page" class="library-page song-list-page">
 				<h2>Playlists</h2>
 				<div id="playlists-library" class="song-list"></div>

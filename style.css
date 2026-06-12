@@ -71,6 +71,17 @@ button {
 	overflow: hidden;
 	scroll-behavior: smooth;
 }
+.song-list-page {
+	gap: 1em;
+}
+.enqueue-menu-bar {
+	display: flex;
+	width: 90%;
+	gap: 8px;
+}
+.enqueue-menu-bar > .standard-button {
+	flex: 1;
+}
 
 /* library */
 
@@ -84,7 +95,6 @@ button {
 	width: 100%;
 	padding-right: inherit;
 	padding-top: 1em;
-	gap: 1em;
 }
 .library-page * {
 	margin: 0;
