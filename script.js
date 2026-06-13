@@ -66,7 +66,7 @@ class SongLibrary extends SongList {
 		super.selectEntry(event);
 	}
 
-	initEntries() {}
+	// TODO ? initEntries() {}
 
 	enableEntryMenu(state) {
 		const entryMenu =
@@ -78,9 +78,16 @@ class SongLibrary extends SongList {
 
 	playEntry() {
 		const index =
-			Array.from(this.songList.children).indexOf(this.selectedEntry);
-		const songs = [this.songList[index]];
-		loadSongQueue(songs);
+			Array.from(this.element.children).indexOf(this.selectedEntry);
+		const song = this.songList[index];
+		loadSongQueue([song]);
+	}
+
+	enqueueEntry() {
+		const index =
+			Array.from(this.element.children).indexOf(this.selectedEntry);
+		const song = this.songList[index];
+		enqueue(song);
 	}
 }
 
@@ -129,6 +136,17 @@ class ArtistLibrary extends SongList {
 		super.selectEntry(event);
 	}
 
+	getSelectedId() {
+		const artistElement = this.selectedEntry.parentElement;
+		const artistIndex =
+			Array.from(this.element.children).indexOf(artistElement);
+		const songIndex =
+			Array.from(artistElement.querySelectorAll(".song-list-entry"))
+			.indexOf(this.selectedEntry);
+		const songId = this.songMap[artistIndex][songIndex];
+		return songId;
+	}
+
 	enableEntryMenu(state) {
 		const entryMenu =
 			document.querySelector("#artists-page > .enqueue-menu-bar");
@@ -140,15 +158,15 @@ class ArtistLibrary extends SongList {
 	}
 
 	playEntry() {
-		const artistElement = this.selectedEntry.parentElement;
-		const artistIndex =
-			Array.from(this.element.children).indexOf(artistElement);
-		const songIndex =
-			Array.from(artistElement.children).indexOf(this.selectedEntry);
-		const songId = this.songMap[artistIndex][songIndex];
-		const songs = songLibrary.songList
-			.filter(i => i.libraryId === songId);
-		loadSongQueue(songs);
+		const songId = this.getSelectedId();
+		const song = songLibrary.songList.find(i => i.libraryId === songId);
+		loadSongQueue([song]);
+	}
+
+	enqueueEntry() {
+		const songId = this.getSelectedId();
+		const song = songLibrary.songList.find(i => i.libraryId === songId);
+		enqueue(song);
 	}
 }
 
@@ -206,7 +224,7 @@ class SongQueue extends SongList {
 
 	playEntry() {
 		const index =
-			Array.from(this.songList.children).indexOf(this.selectedEntry);
+			Array.from(this.element.children).indexOf(this.selectedEntry);
 		currentSong = index;
 		loadSong();
 	}
@@ -617,11 +635,7 @@ function playSelectedEntry(event) {
 function enqueueSelectedEntry(event) {
 	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
 	const songList = elementToLibrary(songListElement);
-	const selected = songList.selectedEntry;
-	const songListEntries = Array.from(selected.parentElement.children);
-	const index = songListEntries.indexOf(selected);
-	const songs = [songList.songList[index]];
-	songs.forEach(enqueue);
+	songList.enqueueEntry();
 }
 
 function dequeueSelectedEntry() {
