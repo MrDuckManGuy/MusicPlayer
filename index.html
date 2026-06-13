@@ -35,12 +35,10 @@
 				<div class="searchbar-container">
 					<input id="all-song-searchbar" class="searchbar" type="search" placeholder="Search" />
 				</div>
-				<div>
-					<button class="standard-button" onclick="randomEnqueue()">random</button>
-				</div>
 				<div class="enqueue-menu-bar">
 					<button class="standard-button one-queue-btn" disabled onclick="playSelectedEntry(event)">Play</button>
 					<button class="standard-button one-queue-btn" disabled onclick="enqueueSelectedEntry(event)">Enqueue</button>
+					<button class="standard-button random-btn" onclick="randomEnqueue()">Random</button>
 				</div>
 				<div id="song-library" class="song-list"></div>
 			</div>
@@ -55,6 +53,7 @@
 					<button class="standard-button one-queue-btn" disabled onclick="enqueueSelectedEntry(event)">Enqueue</button>
 					<button class="standard-button all-queue-btn" disabled onclick="">Play All</button>
 					<button class="standard-button all-queue-btn" disabled onclick="">Enqueue All</button>
+					<button class="standard-button random-btn" onclick="randomEnqueue()">Random</button>
 				</div>
 				<div id="artists-library" class="song-list"></div>
 			</div>
@@ -96,8 +95,8 @@
 		<div id="queue-tab" class="tab song-list-page">
 			<h1>Song Queue</h1>
 			<div class="enqueue-menu-bar">
-				<button class="standard-button" disabled onclick="playSelectedEntry(event)">Play</button>
-				<button class="standard-button" disabled onclick="dequeueSelectedEntry()">Dequeue</button>
+				<button class="standard-button one-queue-btn" disabled onclick="playSelectedEntry(event)">Play</button>
+				<button class="standard-button one-queue-btn" disabled onclick="dequeueSelectedEntry()">Dequeue</button>
 			</div>
 			<div id="song-queue" class="song-list"></div>
 		</div>

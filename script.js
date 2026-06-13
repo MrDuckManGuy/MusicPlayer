@@ -25,11 +25,31 @@ class SongList {
 		const targetEntry = event.target.closest(".song-list-entry");
 		if (this.selectedEntry === targetEntry) {
 			this.selectedEntry = null;
-			this.enableEntryMenu(false);
+			this.toggleSingleEntry(false);
 		} else {
 			this.selectedEntry = targetEntry;
 			this.selectedEntry.classList.add("selected");
-			this.enableEntryMenu(true);
+			this.toggleSingleEntry(true);
+		}
+	}
+
+	toggleSingleEntry(state) {
+		const oneQueueButtons =
+			Array.from(this.element.parentElement.querySelectorAll(
+				".enqueue-menu-bar > .one-queue-btn"
+			));
+		for (const button of oneQueueButtons) {
+			button.disabled = !state;
+		}
+	}
+
+	toggleMultiEntry(state) {
+		const allQueueButtons =
+			Array.from(this.element.parentElement.querySelectorAll(
+				".enqueue-menu-bar > .all-queue-btn"
+			));
+		for (const button of allQueueButtons) {
+			button.disabled = !state;
 		}
 	}
 }
@@ -84,14 +104,6 @@ class SongLibrary extends SongList {
 		const song = this.selectedToSong();
 		enqueue(song);
 	}
-
-	enableEntryMenu(state) {
-		const entryMenu =
-			document.querySelector("#all-songs-page > .enqueue-menu-bar");
-		for (const button of entryMenu.children) {
-			button.disabled = !state;
-		}
-	}
 }
 
 class ArtistLibrary extends SongList {
@@ -102,11 +114,13 @@ class ArtistLibrary extends SongList {
 		this.element = document.querySelector("#artists-library");
 		this.searchbar = document.querySelector("#artists-searchbar");
 		this.selectedEntry = null;
+		this.selectedArtist = null;
 		this.searchbar.addEventListener("keyup", () => {
 			const searchString = this.searchbar.value;
 			searchLibraryPage(searchString, this.element);
 		});
 		this.element.addEventListener("click", event => {
+			this.selectArtist(event);
 			this.selectEntry(event);
 		});
 	}
@@ -139,6 +153,11 @@ class ArtistLibrary extends SongList {
 		super.selectEntry(event);
 	}
 
+	selectArtist(event) {
+		this.selectedArtist = event.target.closest(".artist-entry");
+		closeListEntries(this.selectedArtist);
+	}
+
 	selectedToSong() {
 		const artistElement = this.selectedEntry.parentElement;
 		const artistIndex =
@@ -159,16 +178,6 @@ class ArtistLibrary extends SongList {
 	enqueueEntry() {
 		const song = this.selectedToSong();
 		enqueue(song);
-	}
-
-	enableEntryMenu(state) {
-		const entryMenu =
-			document.querySelector("#artists-page > .enqueue-menu-bar");
-		const oneQueueButtons =
-			Array.from(entryMenu.querySelectorAll(".one-queue-btn"));
-		for (const button of oneQueueButtons) {
-			button.disabled = !state;
-		}
 	}
 }
 
@@ -221,14 +230,6 @@ class SongQueue extends SongList {
 			Array.from(this.element.children).indexOf(this.selectedEntry);
 		currentSong = index;
 		loadSong();
-	}
-
-	enableEntryMenu(state) {
-		const entryMenu =
-			document.querySelector("#queue-tab > .enqueue-menu-bar");
-		for (const button of entryMenu.children) {
-			button.disabled = !state;
-		}
 	}
 }
 
@@ -478,13 +479,6 @@ function initArtistEntry(artist) {
 	const artistEntry = createElement({
 		type: "details",
 		classes: ["song-list-entry", "artist-entry"],
-		events: {
-			toggle: (event) => {
-				const currentSelection = event.currentTarget;
-				closeListEntries(currentSelection);
-				focusArtistEntry(currentSelection);
-			}
-		},
 		parent: artistLibrary.element
 	});
 	const artistEntryTitle = createElement({
@@ -582,6 +576,7 @@ function closeListEntries(currentSelection) {
 }
 
 function focusArtistEntry(currentSelection) {
+	// TODO: remove
 	const searchString = artistLibrary.searchbar.value;
 	const matches = getSearchMatches(searchString, artistLibrary.element);
 	const displayState = currentSelection.open ? "none" : "";
@@ -644,7 +639,7 @@ function dequeueSelectedEntry() {
 	const songQueueEntries = Array.from(songQueue.element.children);
 	const index = songQueueEntries.indexOf(songQueue.selectedEntry);
 	dequeue(index);
-	songQueue.enableEntryMenu(false);
+	songQueue.toggleSingleEntry(false);
 }
 
 // controls
