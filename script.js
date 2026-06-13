@@ -7,6 +7,7 @@ const jsmediatags = window.jsmediatags;
  * @property {string} artist
  * @property {string} album
  * @property {File} file
+ * @property {string} libraryId
  * @property {string | undefined} queueId
  */
 
@@ -75,7 +76,9 @@ class SongLibrary extends SongList {
 		}
 	}
 
-	playEntry(index) {
+	playEntry() {
+		const index =
+			Array.from(this.songList.children).indexOf(this.selectedEntry);
 		const songs = [this.songList[index]];
 		loadSongQueue(songs);
 	}
@@ -85,6 +88,7 @@ class ArtistLibrary extends SongList {
 	constructor() {
 		super();
 		this.artistList = [];
+		this.songMap = [];
 		this.element = document.querySelector("#artists-library");
 		this.searchbar = document.querySelector("#artists-searchbar");
 		this.selectedEntry = null;
@@ -99,9 +103,12 @@ class ArtistLibrary extends SongList {
 
 	setArtists(artistList) {
 		this.artistList = artistList;
+		artistList.forEach(i => this.songMap.push([]));
 	}
 
 	reset() {
+		this.artistList = [];
+		this.songMap = [];
 		this.element.replaceChildren();
 	}
 
@@ -111,6 +118,7 @@ class ArtistLibrary extends SongList {
 		const index = artistLibrary.artistList.indexOf(song.artist);
 		const artistElement = artistLibrary.element.children.item(index);
 		artistElement.appendChild(entry);
+		this.songMap[index].push(song.libraryId);
 	}
 
 	selectEntry(event) {
@@ -131,8 +139,16 @@ class ArtistLibrary extends SongList {
 		}
 	}
 
-	playEntry(index) {
-		// TODO
+	playEntry() {
+		const artistElement = this.selectedEntry.parentElement;
+		const artistIndex =
+			Array.from(this.element.children).indexOf(artistElement);
+		const songIndex =
+			Array.from(artistElement.children).indexOf(this.selectedEntry);
+		const songId = this.songMap[artistIndex][songIndex];
+		const songs = songLibrary.songList
+			.filter(i => i.libraryId === songId);
+		loadSongQueue(songs);
 	}
 }
 
@@ -188,7 +204,9 @@ class SongQueue extends SongList {
 		}
 	}
 
-	playEntry(index) {
+	playEntry() {
+		const index =
+			Array.from(this.songList.children).indexOf(this.selectedEntry);
 		currentSong = index;
 		loadSong();
 	}
@@ -241,11 +259,12 @@ function loadSongLibrary(files) {
 	[songLibrary, artistLibrary, playlistLibrary].forEach(i => i.reset());
 	files = Array.from(files);
 	// init song library file entries
-	songLibrary.songList = files
+	songLibrary.songList =
+		files
 		.filter(file => file.type.startsWith("audio/")
 			&& !file.type.endsWith("x-mpegurl"))
 		.sort((a, b) => (a.name).localeCompare((b.name)))
-		.map(file => ({ file: file }));
+		.map(file => ({ file: file, libraryId: generateId() }));
 	let readCounter = 0;
 	// read metadata
 	songLibrary.songList.forEach(song => {
@@ -262,7 +281,6 @@ function loadSongLibrary(files) {
 			}
 		});
 	});
-	// console.log(Array.from(songLibrary).map(i => i.webkitRelativePath));
 }
 
 /**
@@ -305,7 +323,7 @@ function resetAudioPlayer() {
  * @param {Song} song - the song to be added to the queue
  */
 function enqueue(song) {
-	song = Object.assign({ queueId: generateQueueId() }, song);
+	song = Object.assign({ queueId: generateId() }, song);
 	songQueue.songList.push(song);
 	songQueue.appendEntry(song);
 }
@@ -328,10 +346,10 @@ function dequeue(index) {
 }
 
 /**
- * Create an identifier for a song for the queue
+ * Create a unique identifier
  * @return {string} an identifier string
  */
-function generateQueueId() {
+function generateId() {
 	try {
 		return crypto.randomUUID();
 	} catch (error) {
@@ -592,10 +610,7 @@ function focusTab(tabID, resetOrientation) {
 function playSelectedEntry(event) {
 	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
 	const songList = elementToLibrary(songListElement);
-	const selected = songList.selectedEntry;
-	const songListEntries = Array.from(selected.parentElement.children);
-	const index = songListEntries.indexOf(selected);
-	songList.playEntry(index);
+	songList.playEntry();
 	focusTab("#player-tab");
 }
 
