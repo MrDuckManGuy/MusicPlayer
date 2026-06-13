@@ -25,11 +25,11 @@ class SongList {
 		const targetEntry = event.target.closest(".song-list-entry");
 		if (this.selectedEntry === targetEntry) {
 			this.selectedEntry = null;
-			this.toggleSingleEntry(true);
+			this.toggleSingleEntry(false);
 		} else {
 			this.selectedEntry = targetEntry;
 			this.selectedEntry.classList.add("selected");
-			this.toggleSingleEntry(false);
+			this.toggleSingleEntry(true);
 		}
 	}
 
@@ -39,7 +39,7 @@ class SongList {
 				".enqueue-menu-bar > .one-queue-btn"
 			));
 		for (const button of oneQueueButtons) {
-			button.disabled = state;
+			button.disabled = !state;
 		}
 	}
 
@@ -49,7 +49,7 @@ class SongList {
 				".enqueue-menu-bar > .all-queue-btn"
 			));
 		for (const button of allQueueButtons) {
-			button.disabled = state;
+			button.disabled = !state;
 		}
 	}
 }
@@ -159,26 +159,46 @@ class ArtistLibrary extends SongList {
 		closeListEntries(this.selectedArtist);
 	}
 
-	selectedToSong() {
-		const artistElement = this.selectedEntry.parentElement;
+	entryToSong(entry) {
 		const artistIndex =
-			Array.from(this.element.children).indexOf(artistElement);
+			Array.from(this.element.children).indexOf(this.selectedArtist);
 		const songIndex =
-			Array.from(artistElement.querySelectorAll(".song-list-entry"))
-			.indexOf(this.selectedEntry);
+			Array.from(
+				this.selectedArtist.querySelectorAll(".song-list-entry")
+			).indexOf(entry);
 		const songId = this.songMap[artistIndex][songIndex];
 		const song = songLibrary.songList.find(i => i.libraryId === songId);
 		return song;
 	}
 
 	playEntry() {
-		const song = this.selectedToSong();
+		const song = this.entryToSong(this.selectedEntry);
 		loadSongQueue([song]);
 	}
 
 	enqueueEntry() {
-		const song = this.selectedToSong();
+		const song = this.entryToSong(this.selectedEntry);
 		enqueue(song);
+	}
+
+	artistEntryToSongs(artistEntry) {
+		const entries = artistEntry.querySelectorAll(".song-list-entry");
+		const songs = [];
+		for (const entry of entries) {
+			const song = this.entryToSong(entry);
+			songs.push(song);
+		}
+		return songs;
+	}
+
+	playAllEntries() {
+		const songs = this.artistEntryToSongs(this.selectedArtist);
+		loadSongQueue(songs);
+	}
+
+	enqueueAllEntries() {
+		const songs = this.artistEntryToSongs(this.selectedArtist);
+		songs.forEach(enqueue);
 	}
 }
 
@@ -577,9 +597,10 @@ function closeListEntries(currentSelection) {
 			i.open = false;
 		}
 	});
-	if (currentSelection.open === false) {
-		const library = elementToLibrary(currentSelection.parentElement);
-		library.toggleMultiEntry(false);
+	const library = elementToLibrary(currentSelection.parentElement);
+	library.toggleSingleEntry(false);
+	if (currentSelection.open) {
+		// library.toggleMultiEntry(false);
 	}
 }
 
@@ -638,6 +659,14 @@ function playSelectedEntry(event) {
 	focusTab("#player-tab");
 }
 
+function playCollectionEntries(event) {
+	const songListElement =
+		event.target.closest(".song-list-page").querySelector(".song-list");
+	const songList = elementToLibrary(songListElement);
+	songList.playAllEntries();
+	focusTab("#player-tab");
+}
+
 function enqueueSelectedEntry(event) {
 	const songListElement =
 		event.target.closest(".song-list-page").querySelector(".song-list");
@@ -645,11 +674,18 @@ function enqueueSelectedEntry(event) {
 	songList.enqueueEntry();
 }
 
+function enqueueCollectionEntries(event) {
+	const songListElement =
+		event.target.closest(".song-list-page").querySelector(".song-list");
+	const songList = elementToLibrary(songListElement);
+	songList.enqueueAllEntries();
+}
+
 function dequeueSelectedEntry() {
 	const songQueueEntries = Array.from(songQueue.element.children);
 	const index = songQueueEntries.indexOf(songQueue.selectedEntry);
 	dequeue(index);
-	songQueue.toggleSingleEntry(true);
+	songQueue.toggleSingleEntry(false);
 }
 
 // controls
