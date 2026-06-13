@@ -210,7 +210,6 @@ button {
 	margin-bottom: 1em;
 }
 .song-list-entry {
-	padding: 0.5em;
 	overflow-wrap: anywhere;
 }
 .song-list-entry.playing {
@@ -223,6 +222,7 @@ button {
 	border: 2px solid var(--bg2);
 }
 .song-list-entry-primary {
+	padding: 0.5em;
 	list-style: none;
 }
 .song-list-entry-secondary {

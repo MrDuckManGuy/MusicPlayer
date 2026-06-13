@@ -25,11 +25,11 @@ class SongList {
 		const targetEntry = event.target.closest(".song-list-entry");
 		if (this.selectedEntry === targetEntry) {
 			this.selectedEntry = null;
-			this.toggleSingleEntry(false);
+			this.toggleSingleEntry(true);
 		} else {
 			this.selectedEntry = targetEntry;
 			this.selectedEntry.classList.add("selected");
-			this.toggleSingleEntry(true);
+			this.toggleSingleEntry(false);
 		}
 	}
 
@@ -39,7 +39,7 @@ class SongList {
 				".enqueue-menu-bar > .one-queue-btn"
 			));
 		for (const button of oneQueueButtons) {
-			button.disabled = !state;
+			button.disabled = state;
 		}
 	}
 
@@ -49,7 +49,7 @@ class SongList {
 				".enqueue-menu-bar > .all-queue-btn"
 			));
 		for (const button of allQueueButtons) {
-			button.disabled = !state;
+			button.disabled = state;
 		}
 	}
 }
@@ -155,6 +155,7 @@ class ArtistLibrary extends SongList {
 
 	selectArtist(event) {
 		this.selectedArtist = event.target.closest(".artist-entry");
+		this.toggleMultiEntry(true);
 		closeListEntries(this.selectedArtist);
 	}
 
@@ -266,7 +267,8 @@ function initLibraryPageEntries(files) {
 			playlistSongPaths = playlistFileText
 				.split("\n")
 				.filter(i => !i.startsWith("#") && i !== "");
-			playlistSongNames = playlistSongPaths.map(i => i.split("/").toReversed()[0]);
+			playlistSongNames =
+				playlistSongPaths.map(i => i.split("/").toReversed()[0]);
 			initPlaylistEntry(playlistName, playlistSongNames);
 		}
 		reader.onerror = (error) => {
@@ -543,7 +545,9 @@ function initPlaylistEntry(name, titles) {
 		},
 		parent: playlistEntryMenu
 	});
-	playlistSongs.forEach(song => playlistLibrary.appendEntry(song, playlistEntry));
+	playlistSongs.forEach(
+		song => playlistLibrary.appendEntry(song, playlistEntry)
+	);
 }
 
 // UI
@@ -573,6 +577,10 @@ function closeListEntries(currentSelection) {
 			i.open = false;
 		}
 	});
+	if (currentSelection.open === false) {
+		const library = elementToLibrary(currentSelection.parentElement);
+		library.toggleMultiEntry(false);
+	}
 }
 
 function focusArtistEntry(currentSelection) {
@@ -623,14 +631,16 @@ function focusTab(tabID, resetOrientation) {
 }
 
 function playSelectedEntry(event) {
-	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
+	const songListElement =
+		event.target.closest(".song-list-page").querySelector(".song-list");
 	const songList = elementToLibrary(songListElement);
 	songList.playEntry();
 	focusTab("#player-tab");
 }
 
 function enqueueSelectedEntry(event) {
-	const songListElement = event.target.closest(".song-list-page").querySelector(".song-list");
+	const songListElement =
+		event.target.closest(".song-list-page").querySelector(".song-list");
 	const songList = elementToLibrary(songListElement);
 	songList.enqueueEntry();
 }
@@ -639,7 +649,7 @@ function dequeueSelectedEntry() {
 	const songQueueEntries = Array.from(songQueue.element.children);
 	const index = songQueueEntries.indexOf(songQueue.selectedEntry);
 	dequeue(index);
-	songQueue.toggleSingleEntry(false);
+	songQueue.toggleSingleEntry(true);
 }
 
 // controls
