@@ -154,7 +154,17 @@ class ArtistLibrary extends SongList {
 	}
 
 	selectArtist(event) {
-		this.selectedArtist = event.target.closest(".artist-entry");
+		const targetEntry = event.target.closest(".song-list-entry");
+		if (!targetEntry.classList.contains("artist-entry")) {
+			return;
+		}
+		if (this.selectedArtist === targetEntry) {
+			closeListEntries(this.selectedArtist);
+			this.selectedArtist = null;
+			this.toggleMultiEntry(false);
+			return;
+		}
+		this.selectedArtist = targetEntry;
 		this.toggleMultiEntry(true);
 		closeListEntries(this.selectedArtist);
 	}
@@ -598,9 +608,14 @@ function closeListEntries(currentSelection) {
 		}
 	});
 	const library = elementToLibrary(currentSelection.parentElement);
-	library.toggleSingleEntry(false);
+	// TODO: handle duplicate code from selectEntry
+	if (library.selectedEntry !== null) {
+		library.selectedEntry.classList.remove("selected");
+		library.selectedEntry = null;
+		library.toggleSingleEntry(false);
+	}
 	if (currentSelection.open) {
-		// library.toggleMultiEntry(false);
+		library.toggleMultiEntry(false);
 	}
 }
 
