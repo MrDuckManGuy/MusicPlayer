@@ -379,6 +379,7 @@ function enqueue(song) {
 	song = Object.assign({ queueId: generateId() }, song);
 	songQueue.songList.push(song);
 	songQueue.appendEntry(song);
+	songQueue.toggleMultiEntry(true);
 }
 
 /**
@@ -389,6 +390,7 @@ function dequeue(index) {
 	songQueue.songList.splice(index, 1);
 	Array.from(songQueue.element.children)[index].remove();
 	if (songQueue.songList.length === 0) {
+		songQueue.toggleMultiEntry(false);
 		resetAudioPlayer();
 	} else if (index === currentSong) {
 		currentSong %= songQueue.songList.length;
@@ -701,6 +703,15 @@ function dequeueSelectedEntry() {
 	const index = songQueueEntries.indexOf(songQueue.selectedEntry);
 	dequeue(index);
 	songQueue.toggleSingleEntry(false);
+}
+
+function dequeueCollectionEntries() {
+	const songQueueEntries = songQueue.element.children;
+	for (let i = songQueueEntries.length - 1; i >= 0; i--) {
+		dequeue(i);
+	}
+	songQueue.toggleSingleEntry(false);
+	songQueue.toggleMultiEntry(false);
 }
 
 // controls
