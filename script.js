@@ -54,6 +54,94 @@ class SongList {
 	}
 }
 
+class SongCollection extends SongList {
+	constructor() {
+		super();
+		this.songMap = [];
+	}
+
+	getCollection() { throw new Error("not implemented"); }
+	setCollection(_collection) { throw new Error("not implemented"); }
+	getSelectedList() { throw new Error("not implemented"); }
+	setSelectedList(_collection) { throw new Error("not implemented"); }
+	getCollectionEntryClass() { throw new Error("not implemented"); }
+	initCollection(collectionList) { throw new Error("not implemented") }
+
+	reset() {
+		this.setCollection([]);
+		this.songMap = [];
+		this.element.replaceChildren();
+	}
+
+	selectEntry(event) {
+		const targetEntry = event.target.closest(".song-list-entry");
+		const collectionEntryClass = this.getCollectionEntryClass();
+		if (targetEntry.classList.contains(collectionEntryClass)) {
+			return;
+		}
+		super.selectEntry(event);
+	}
+
+	selectCollection(event) {
+		const targetEntry = event.target.closest(".song-list-entry");
+		const collectionClass = this.getCollectionEntryClass();
+		if (!targetEntry.classList.contains(collectionClass)) {
+			return;
+		}
+		if (this.getSelectedList() === targetEntry) {
+			closeListEntries(this.getSelectedList());
+			this.setSelectedList(null);
+			this.toggleMultiEntry(false);
+			return;
+		}
+		this.setSelectedList(targetEntry);
+		this.toggleMultiEntry(true);
+		closeListEntries(this.getSelectedList());
+	}
+
+	entryToSong(entry) {
+		const collectionIndex =
+			Array.from(this.element.children).indexOf(this.getSelectedList());
+		const songIndex =
+			Array.from(
+				this.getSelectedList().querySelectorAll(".song-list-entry")
+			).indexOf(entry);
+		const songId = this.songMap[collectionIndex][songIndex];
+		const song = songLibrary.songList.find(i => i.libraryId === songId);
+		return song;
+	}
+
+	playEntry() {
+		const song = this.entryToSong(this.selectedEntry);
+		loadSongQueue([song]);
+	}
+
+	enqueueEntry() {
+		const song = this.entryToSong(this.selectedEntry);
+		enqueue(song);
+	}
+
+	collectionEntryToSongs(collectionEntry) {
+		const entries = collectionEntry.querySelectorAll(".song-list-entry");
+		const songs = [];
+		for (const entry of entries) {
+			const song = this.entryToSong(entry);
+			songs.push(song);
+		}
+		return songs;
+	}
+
+	playAllEntries() {
+		const songs = this.collectionEntryToSongs(this.getSelectedList());
+		loadSongQueue(songs);
+	}
+
+	enqueueAllEntries() {
+		const songs = this.collectionEntryToSongs(this.getSelectedList());
+		songs.forEach(enqueue);
+	}
+}
+
 class SongLibrary extends SongList {
 	constructor() {
 		super();
@@ -106,7 +194,7 @@ class SongLibrary extends SongList {
 	}
 }
 
-class ArtistLibrary extends SongList {
+class ArtistLibrary extends SongCollection {
 	constructor() {
 		super();
 		this.artistList = [];
@@ -125,15 +213,29 @@ class ArtistLibrary extends SongList {
 		});
 	}
 
-	setArtists(artistList) {
-		this.artistList = artistList;
-		artistList.forEach(i => this.songMap.push([]));
+	getCollection() {
+		return this.artistList;
 	}
 
-	reset() {
-		this.artistList = [];
-		this.songMap = [];
-		this.element.replaceChildren();
+	setCollection(collection) {
+		this.artistList = collection;
+	}
+
+	getSelectedList() {
+		return this.selectedArtist;
+	}
+
+	setSelectedList(collection) {
+		this.selectedArtist = collection;
+	}
+
+	getCollectionEntryClass() {
+		return "artist-entry";
+	}
+
+	initArtists(artistList) {
+		this.artistList = artistList;
+		artistList.forEach(() => this.songMap.push([]));
 	}
 
 	appendEntry(song) {
@@ -145,87 +247,61 @@ class ArtistLibrary extends SongList {
 		this.songMap[index].push(song.libraryId);
 	}
 
-	selectEntry(event) {
-		const targetEntry = event.target.closest(".song-list-entry");
-		if (targetEntry.classList.contains("artist-entry")) {
-			return;
-		}
-		super.selectEntry(event);
-	}
-
 	selectArtist(event) {
-		const targetEntry = event.target.closest(".song-list-entry");
-		if (!targetEntry.classList.contains("artist-entry")) {
-			return;
-		}
-		if (this.selectedArtist === targetEntry) {
-			closeListEntries(this.selectedArtist);
-			this.selectedArtist = null;
-			this.toggleMultiEntry(false);
-			return;
-		}
-		this.selectedArtist = targetEntry;
-		this.toggleMultiEntry(true);
-		closeListEntries(this.selectedArtist);
-	}
-
-	entryToSong(entry) {
-		const artistIndex =
-			Array.from(this.element.children).indexOf(this.selectedArtist);
-		const songIndex =
-			Array.from(
-				this.selectedArtist.querySelectorAll(".song-list-entry")
-			).indexOf(entry);
-		const songId = this.songMap[artistIndex][songIndex];
-		const song = songLibrary.songList.find(i => i.libraryId === songId);
-		return song;
-	}
-
-	playEntry() {
-		const song = this.entryToSong(this.selectedEntry);
-		loadSongQueue([song]);
-	}
-
-	enqueueEntry() {
-		const song = this.entryToSong(this.selectedEntry);
-		enqueue(song);
-	}
-
-	artistEntryToSongs(artistEntry) {
-		const entries = artistEntry.querySelectorAll(".song-list-entry");
-		const songs = [];
-		for (const entry of entries) {
-			const song = this.entryToSong(entry);
-			songs.push(song);
-		}
-		return songs;
-	}
-
-	playAllEntries() {
-		const songs = this.artistEntryToSongs(this.selectedArtist);
-		loadSongQueue(songs);
-	}
-
-	enqueueAllEntries() {
-		const songs = this.artistEntryToSongs(this.selectedArtist);
-		songs.forEach(enqueue);
+		super.selectCollection(event);
 	}
 }
 
-class PlaylistLibrary extends SongList {
+class PlaylistLibrary extends SongCollection {
 	constructor() {
 		super();
+		this.playlists = [];
+		this.songMap = [];
 		this.element = document.querySelector("#playlists-library");
+		this.selectedEntry = null;
+		this.selectedPlaylist = null;
+		this.element.addEventListener("click", event => {
+			this.selectPlaylist(event);
+			this.selectEntry(event);
+		});
 	}
 
-	reset() {
-		this.element.replaceChildren();
+	getCollection() {
+		return this.playlists;
+	}
+
+	setCollection(collection) {
+		this.playlists = collection;
+	}
+
+	getSelectedList() {
+		return this.selectedPlaylist;
+	}
+
+	setSelectedList(collection) {
+		this.selectedPlaylist = collection;
+	}
+
+	getCollectionEntryClass() {
+		return "playlist-entry";
+	}
+
+	initPlaylists(playlists) {
+		this.playlists = playlists;
+		playlists.forEach(() => this.songMap.push([]));
 	}
 
 	appendEntry(song, playlist) {
 		const secondaryText = song.album ? song.album : "unknown";
 		const entry = createSongListEntry(song, secondaryText);
 		playlist.appendChild(entry);
+		const index =
+			Array.prototype.indexOf.call(this.element.children, playlist);
+		this.songMap[index].push(song.libraryId);
+	}
+
+	selectPlaylist(event) {
+		super.selectCollection(event);
 	}
 }
 
@@ -283,22 +359,27 @@ function initLibraryPageEntries(files) {
 	songLibrary.songList.forEach(i => songLibrary.appendEntry(i));
 	const artistList =
 		[...(new Set(songLibrary.songList.map(i => i.artist)))].sort()
-	artistLibrary.setArtists(artistList);
+	artistLibrary.initArtists(artistList);
 	artistLibrary.artistList.forEach(i => initArtistEntry(i));
 	songLibrary.songList.forEach(i => artistLibrary.appendEntry(i));
 	playlistFiles = files.filter(file => file.name.endsWith(".m3u"));
 	playlistFiles.forEach(playlistFile => {
-		if (playlistFile.name === ".album.m3u") return;
 		const reader = new FileReader();
 		reader.onload = () => {
 			playlistFileText = reader.result;
-			playlistName = playlistFileText
-				.match(/#PLAYLIST:(.*)/)[1];
+			try {
+				// TODO: handle #EXTALB files
+				playlistName = playlistFileText.match(/#PLAYLIST:(.*)/)[1];
+			} catch {
+				return;
+			}
 			playlistSongPaths = playlistFileText
 				.split("\n")
 				.filter(i => !i.startsWith("#") && i !== "");
 			playlistSongNames =
 				playlistSongPaths.map(i => i.split("/").toReversed()[0]);
+			playlistLibrary.playlists.push(playlistName);
+			playlistLibrary.songMap.push([]);
 			initPlaylistEntry(playlistName, playlistSongNames);
 		}
 		reader.onerror = (error) => {
@@ -530,13 +611,6 @@ function initPlaylistEntry(name, titles) {
 	const playlistEntry = createElement({
 		type: "details",
 		classes: ["song-list-entry", "playlist-entry"],
-		events: {
-			toggle: (event) => {
-				const currentSelection = event.currentTarget;
-				closeListEntries(currentSelection);
-				// focusArtistEntry(currentSelection);
-			}
-		},
 		parent: playlistLibrary.element
 	});
 	const playlistEntryTitle = createElement({
@@ -544,38 +618,6 @@ function initPlaylistEntry(name, titles) {
 		classes: ["song-list-entry-primary"],
 		text: name ? name : "unknown",
 		parent: playlistEntry
-	});
-	const playlistEntryMenu = createElement({
-		type: "div",
-		classes: ["song-list-entry-menu"],
-		parent: playlistEntry
-	});
-	const playlistEntryPlay = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		text: "Play",
-		events: {
-			click: () => {
-				const songs = playlistSongs;
-				loadSongQueue(songs);
-				focusTab("#player-tab");
-				playlistEntry.open = false;
-			}
-		},
-		parent: playlistEntryMenu
-	});
-	const playlistEntryQueue = createElement({
-		type: "button",
-		classes: ["song-list-entry-button"],
-		text: "Enqueue",
-		events: {
-			click: () => {
-				const songs = playlistSongs;
-				songs.forEach(enqueue);
-				playlistEntry.open = false;
-			}
-		},
-		parent: playlistEntryMenu
 	});
 	playlistSongs.forEach(
 		song => playlistLibrary.appendEntry(song, playlistEntry)
@@ -794,6 +836,7 @@ screen.orientation.addEventListener("change", event => {
 
 // service worker
 
+/* TODO
 if ("serviceWorker" in navigator) {
 	window.addEventListener("load", async () => {
 		try {
@@ -803,6 +846,7 @@ if ("serviceWorker" in navigator) {
 		}
 	});
 }
+*/
 
 // metadata
 

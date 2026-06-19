@@ -59,6 +59,12 @@
 
 			<div id="playlists-page" class="library-page song-list-page">
 				<h2>Playlists</h2>
+				<div class="enqueue-menu-bar">
+					<button class="standard-button one-queue-btn" disabled onclick="playSelectedEntry(event)">Play</button>
+					<button class="standard-button one-queue-btn" disabled onclick="enqueueSelectedEntry(event)">Enqueue</button>
+					<button class="standard-button all-queue-btn" disabled onclick="playCollectionEntries(event)">Play All</button>
+					<button class="standard-button all-queue-btn" disabled onclick="enqueueCollectionEntries(event)">Enqueue All</button>
+				</div>
 				<div id="playlists-library" class="song-list"></div>
 			</div>
 		</div>
