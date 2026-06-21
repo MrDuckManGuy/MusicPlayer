@@ -18,6 +18,9 @@ let currentTab = "#library-tab";
 let currentLibraryPage = "#library-menu";
 
 class SongList {
+	// getSelectedEntry() { throw new Error("not implemented"); }
+	// setSelectedEntry(_entry) { throw new Error("not implemented"); }
+
 	selectEntry(event) {
 		if (this.selectedEntry !== null) {
 			this.selectedEntry.classList.remove("selected");
@@ -52,6 +55,24 @@ class SongList {
 			button.disabled = !state;
 		}
 	}
+
+	selectionReset() {
+		this.toggleSingleEntry(false);
+		this.toggleMultiEntry(false);
+		if (!this.selectedEntry) {
+			return;
+		}
+		this.selectedEntry.classList.remove("selected");
+		this.selectedEntry = null;
+	}
+
+	search(query) {
+		this.selectionReset();
+		const matches = getSearchMatches(query, this.element);
+		Array.from(this.element.children).forEach(i =>
+			i.style.display = (matches.includes(i) ? "" : "none")
+		);
+	}
 }
 
 class SongCollection extends SongList {
@@ -75,6 +96,9 @@ class SongCollection extends SongList {
 
 	selectEntry(event) {
 		const targetEntry = event.target.closest(".song-list-entry");
+		if (!targetEntry) {
+			return;
+		}
 		const collectionEntryClass = this.getCollectionEntryClass();
 		if (targetEntry.classList.contains(collectionEntryClass)) {
 			return;
@@ -82,21 +106,47 @@ class SongCollection extends SongList {
 		super.selectEntry(event);
 	}
 
+	closeCollections() {
+		const selectedList = this.getSelectedList();
+		Array.from(selectedList.parentElement.children)
+			.forEach(i => {
+				if (i !== selectedList) {
+					i.open = false;
+				}
+			});
+	}
+
+	selectionReset() {
+		if (this.getSelectedList()) {
+			this.closeCollections();
+			this.getSelectedList().classList.remove("selected");
+			this.setSelectedList(null);
+		}
+		super.selectionReset();
+	}
+
 	selectCollection(event) {
+		/*
+		TODO: prevent default open/close & toggle programmatically to handle
+		case where select border
+		*/
 		const targetEntry = event.target.closest(".song-list-entry");
+		if (!targetEntry) {
+			return;
+		}
 		const collectionClass = this.getCollectionEntryClass();
 		if (!targetEntry.classList.contains(collectionClass)) {
 			return;
 		}
 		if (this.getSelectedList() === targetEntry) {
-			closeListEntries(this.getSelectedList());
-			this.setSelectedList(null);
-			this.toggleMultiEntry(false);
+			this.selectionReset();
 			return;
+		} else {
+			super.selectionReset();
 		}
 		this.setSelectedList(targetEntry);
 		this.toggleMultiEntry(true);
-		closeListEntries(this.getSelectedList());
+		this.closeCollections();
 	}
 
 	entryToSong(entry) {
@@ -140,6 +190,15 @@ class SongCollection extends SongList {
 		const songs = this.collectionEntryToSongs(this.getSelectedList());
 		songs.forEach(enqueue);
 	}
+
+	search(query) {
+		const selectedList = this.getSelectedList();
+		if (selectedList) {
+			selectedList.open = false;
+		}
+		this.selectionReset();
+		super.search(query);
+	}
 }
 
 class SongLibrary extends SongList {
@@ -154,8 +213,8 @@ class SongLibrary extends SongList {
 			this.selectEntry(event);
 		});
 		this.searchbar.addEventListener("keyup", () => {
-			const searchString = this.searchbar.value;
-			searchLibraryPage(searchString, this.element);
+			const query = this.searchbar.value;
+			this.search(query);
 		});
 	}
 
@@ -204,8 +263,8 @@ class ArtistLibrary extends SongCollection {
 		this.selectedEntry = null;
 		this.selectedArtist = null;
 		this.searchbar.addEventListener("keyup", () => {
-			const searchString = this.searchbar.value;
-			searchLibraryPage(searchString, this.element);
+			const query = this.searchbar.value;
+			this.search(query)
 		});
 		this.element.addEventListener("click", event => {
 			this.selectArtist(event);
@@ -550,13 +609,6 @@ function getSearchMatches(searchString, libraryElement) {
 			.includes(searchString.toLowerCase()));
 }
 
-function searchLibraryPage(searchString, libraryElement) {
-	closeListEntries();
-	const matches = getSearchMatches(searchString, libraryElement);
-	Array.from(libraryElement.children)
-		.forEach(i => i.style.display = matches.includes(i) ? "" : "none");
-}
-
 function elementToLibrary(element) {
 	switch (element) {
 		case songLibrary.element:
@@ -637,30 +689,6 @@ function createElement(data) {
 	}
 	if (data.parent) data.parent.appendChild(element);
 	return element;
-}
-
-function closeListEntries(currentSelection) {
-	let songList;
-	if (!currentSelection) {
-		songList = Array.from(document.querySelectorAll(".song-list-entry"));
-	} else {
-		songList = Array.from(currentSelection.parentNode.children);
-	}
-	songList.forEach(i => {
-		if (i !== currentSelection) {
-			i.open = false;
-		}
-	});
-	const library = elementToLibrary(currentSelection.parentElement);
-	// TODO: handle duplicate code from selectEntry
-	if (library.selectedEntry !== null) {
-		library.selectedEntry.classList.remove("selected");
-		library.selectedEntry = null;
-		library.toggleSingleEntry(false);
-	}
-	if (currentSelection.open) {
-		library.toggleMultiEntry(false);
-	}
 }
 
 function focusArtistEntry(currentSelection) {
